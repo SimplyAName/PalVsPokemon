@@ -35,7 +35,7 @@
 	}
 </script>
 
-<h1 class="text-center text-3xl">Welcome to Pal Vs Pokémon</h1>
+<h1 class="text-3xl text-center">Welcome to Pal Vs Pokémon</h1>
 <p class="text-center">
 	Below will have either creature from Pokémon or PalWorld. Try and get the highest streak you can!
 </p>
