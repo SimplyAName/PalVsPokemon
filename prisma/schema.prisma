@@ -26,9 +26,3 @@ model Type {
   Creature   Creature? @relation(fields: [creatureId], references: [id])
   creatureId Int?
 }
-
-//TODO: Set up this enum
-// enum originGame {
-//   PALWORLD,
-//   Pokémon
-// }
