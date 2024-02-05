@@ -1,0 +1,34 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Creature {
+  id         Int      @id @default(autoincrement())
+  name       String
+  originGame String
+  imageLink  String
+  types      Type[]
+  createdAt  DateTime @default(now())
+}
+
+model Type {
+  id         Int       @id @default(autoincrement())
+  name       String
+  Creature   Creature? @relation(fields: [creatureId], references: [id])
+  creatureId Int?
+}
+
+//TODO: Set up this enum
+// enum originGame {
+//   PALWORLD,
+//   Pokémon
+// }

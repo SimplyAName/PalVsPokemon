@@ -1,38 +1,39 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import { onMount } from 'svelte';
 
 	let wins = 0;
 	let loses = 0;
 
-	let answer = 'PalWorld';
+	let waiting = false;
 
-	function randomizeAnswer() {
-		let randNum = Math.floor(Math.random() * 2);
+	let answer = null;
 
-		switch (randNum) {
-			case 0:
-				answer = 'Pokémon';
-				break;
+	async function getRandCreature() {
+		waiting = true;
+		const response = await fetch('/api/question', {
+			method: 'GET',
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
 
-			case 1:
-				answer = 'PalWorld';
-				break;
+		answer = await response.json();
 
-			default:
-				answer = 'Unknown';
-				break;
-		}
+		waiting = false;
 	}
 
 	function answerQuestion(submitted: String) {
-		if (submitted === answer) {
+		if (submitted === answer.originGame) {
 			wins++;
 		} else {
 			loses++;
 		}
 
-		randomizeAnswer();
+		getRandCreature();
 	}
+
+	onMount(getRandCreature);
 </script>
 
 <h1 class="text-3xl text-center">Welcome to Pal Vs Pokémon</h1>
@@ -47,16 +48,18 @@
 	</div>
 
 	<div>
-		<img src="https://placehold.co/600x400" />
+		<img alt="Creature to guess from" src="https://placehold.co/600x400?text={answer?.name}" />
 	</div>
 	<br />
 	<div id="buttons" class="flex flex-row gap-4">
 		<Button
+			disabled={waiting}
 			on:click={() => {
 				answerQuestion('PalWorld');
 			}}>PalWorld</Button
 		>
 		<Button
+			disabled={waiting}
 			on:click={() => {
 				answerQuestion('Pokémon');
 			}}>Pokémon</Button
