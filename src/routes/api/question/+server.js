@@ -3,19 +3,31 @@ import { json } from '@sveltejs/kit';
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ event }) {
-	const prisma = new PrismaClient();
+	let response;
 
-	const productsCount = await prisma.creature.count();
+	let prisma = new PrismaClient();
 
-	const skip = Math.floor(Math.random() * productsCount);
+	try {
+		const productsCount = await prisma.creature.count();
 
-	let randCreature = await prisma.creature.findMany({
-		take: 1,
-		skip: skip
-	});
+		const skip = Math.floor(Math.random() * productsCount);
 
-	await prisma.$disconnect();
-    
+		let randCreatureResult = await prisma.creature.findMany({
+			take: 1,
+			skip: skip
+		});
 
-	return json(randCreature[0]);
+		let randCreature = randCreatureResult[0];
+
+		randCreature.imageLink = `${process.env.HOST_URL}/images/${randCreature.originGame}/${randCreature.imageLink}`;
+
+		response = randCreature;
+	} catch (e) {
+		console.log(e);
+		response = { error: e };
+	} finally {
+		await prisma.$disconnect();
+	}
+
+	return json(response);
 }
