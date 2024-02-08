@@ -19,7 +19,7 @@ export async function GET({ event }) {
 
 		let randCreature = randCreatureResult[0];
 
-		randCreature.imageLink = `${process.env.HOST_URL}/images/${randCreature.originGame}/${randCreature.imageLink}`;
+		randCreature.imageLink = `images/${randCreature.originGame}/${randCreature.imageLink}`;
 
 		response = randCreature;
 	} catch (e) {
