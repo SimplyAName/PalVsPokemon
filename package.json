@@ -36,6 +36,7 @@
 	"type": "module",
 	"dependencies": {
 		"@prisma/client": "^5.9.1",
+		"@sveltejs/adapter-vercel": "^5.1.0",
 		"bits-ui": "^0.17.0",
 		"clsx": "^2.1.0",
 		"lucide-svelte": "^0.321.0",
