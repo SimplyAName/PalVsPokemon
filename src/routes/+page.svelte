@@ -76,15 +76,15 @@
 		</div>
 
 		<div class="flex h-96 flex-col justify-center">
+			{#if streak >= 3}
+				<!-- TODO: Have this hover over image at an angle. Make it work art style -->
+				<p transition:fade class="mt-4 block" style="transform: scale({$textSize});">
+					{streak} combo!!!
+				</p>
+			{/if}
 			{#if waiting}
 				<SquareFlipSpinner color="" background="linear-gradient(to bottom left, blue, pink)" />
 			{:else}
-				{#if streak >= 3}
-				<!-- TODO: Have this hover over image at an angle. Make it work art style -->
-					<p transition:fade class="mt-4 block" style="transform: scale({$textSize});">
-						{streak} combo!!!
-					</p>
-				{/if}
 				<img
 					alt="Creature to guess from. Starts with {answer?.name[0]}"
 					src={answer?.imageLink}
