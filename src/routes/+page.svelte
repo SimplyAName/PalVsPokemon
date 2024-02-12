@@ -36,7 +36,15 @@
 		waiting = false;
 	}
 
-	function answerQuestion(submitted: String) {
+	function answerPalWorld() {
+		_answerQuestion('PalWorld');
+	}
+
+	function answerPokemon() {
+		_answerQuestion('Pokémon');
+	}
+
+	function _answerQuestion(submitted: String) {
 		if (submitted === answer?.originGame) {
 			wins++;
 			streak++;
@@ -52,6 +60,36 @@
 	// 	bonusAlert.animate({});
 	// }
 </script>
+
+<svelte:window
+	on:keydown|preventDefault={(event) => {
+		console.log(event.key);
+
+		switch (event.key) {
+			case 'ArrowLeft':
+				answerPalWorld();
+			case 'ArrowRight':
+				answerPokemon();
+		}
+	}}
+/>
+
+<div class="flex flex-row">
+	<button on:click={answerPalWorld}>
+		<!-- svelte-ignore a11y-img-redundant-alt -->
+		<img
+			src="/images/background/Backgroundbg-left.webp"
+			alt="PalWorld section of background image"
+		/>
+	</button>
+	<!-- svelte-ignore a11y-img-redundant-alt -->
+	<button on:click={answerPokemon}>
+		<img
+			src="/images/background/Backgroundbg-right.webp"
+			alt="Pokémon section of background image"
+		/>
+	</button>
+</div>
 
 <div class="container flex h-screen flex-col justify-center">
 	<div class="rounded-md bg-white p-4">
@@ -100,19 +138,11 @@
 			<br />
 
 			<div id="buttons" class="flex w-full flex-row gap-4 p-8">
-				<Button
-					class="h-16 w-full text-xl"
-					disabled={waiting}
-					on:click={() => {
-						answerQuestion('PalWorld');
-					}}><b>PalWorld</b></Button
+				<Button class="h-16 w-full text-xl" disabled={waiting} on:click={answerPalWorld}
+					><b>PalWorld</b></Button
 				>
-				<Button
-					class="h-16 w-full text-xl"
-					disabled={waiting}
-					on:click={() => {
-						answerQuestion('Pokémon');
-					}}><b>Pokémon</b></Button
+				<Button class="h-16 w-full text-xl" disabled={waiting} on:click={answerPokemon}
+					><b>Pokémon</b></Button
 				>
 			</div>
 		</div>
