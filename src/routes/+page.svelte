@@ -9,7 +9,7 @@
 
 	let wins = 0;
 	let loses = 0;
-	let streak = 4;
+	let streak = 0;
 	let bonusAlert: HTMLElement;
 
 	let waiting = false;
@@ -56,6 +56,9 @@
 		getRandCreature();
 	}
 
+	let palworldHovered: boolean,
+		pokemonHovered = false;
+
 	// while (streak >= 3) {
 	// 	bonusAlert.animate({});
 	// }
@@ -74,77 +77,71 @@
 	}}
 />
 
-<div class="flex flex-row">
-	<button on:click={answerPalWorld}>
+<div class="flex h-screen w-screen flex-col items-center justify-center">
+	<div class="fixed z-10 flex h-screen flex-row">
+		<button on:click={answerPalWorld}>
+			<!-- svelte-ignore a11y-img-redundant-alt -->
+			<img
+				draggable="false"
+				class:greyScale={pokemonHovered}
+				src="/images/background/Backgroundbg-left.webp"
+				alt="PalWorld section of background image"
+				class="peer/palword object-cover transition-all duration-300 ease-in-out hover:scale-110"
+				on:mouseenter={() => {
+					palworldHovered = true;
+				}}
+				on:mouseleave={() => {
+					palworldHovered = false;
+				}}
+			/>
+		</button>
 		<!-- svelte-ignore a11y-img-redundant-alt -->
-		<img
-			src="/images/background/Backgroundbg-left.webp"
-			alt="PalWorld section of background image"
-		/>
-	</button>
-	<!-- svelte-ignore a11y-img-redundant-alt -->
-	<button on:click={answerPokemon}>
-		<img
-			src="/images/background/Backgroundbg-right.webp"
-			alt="Pokémon section of background image"
-		/>
-	</button>
-</div>
+		<button on:click={answerPokemon}>
+			<img
+				draggable="false"
+				class:greyScale={palworldHovered}
+				src="/images/background/Backgroundbg-right.webp"
+				alt="Pokémon section of background image"
+				class="peer/pokemon transition-transform duration-300 ease-in-out hover:scale-110 peer-hover/palwordImage:scale-50"
+				on:mouseenter={() => {
+					pokemonHovered = true;
+				}}
+				on:mouseleave={() => {
+					pokemonHovered = false;
+				}}
+			/>
+		</button>
+	</div>
 
-<div class="container flex h-screen flex-col justify-center">
-	<div class="rounded-md bg-white p-4">
-		<h1 class="text-center text-3xl">Welcome to Pal Vs Pokémon</h1>
-		<p class="text-center">
-			Below will have either creature from Pokémon or PalWorld. Try and get the highest streak you
-			can!
-		</p>
-		<br />
+	<div class="z-20 flex flex-col items-center">
+		<div>
+			You have {wins} correct and {loses} wrong
+		</div>
+		<!-- <div class="flex h-96 flex-col items-start"> -->
+		{#if streak >= 3}
+			<!-- TODO: Have this hover over image at an angle. Make it work art style -->
+			<p
+				bind:this={bonusAlert}
+				transition:fade
+				class="bonus-streak-alert flex justify-center text-red-500"
+			>
+				<b>{streak} combo!!!</b>
+			</p>
+		{/if}
 
-		<div id="gameWindow" class="flex w-full flex-col items-center">
-			<div>
-				You have {wins} correct and {loses} wrong
-			</div>
-
-			<div class="flex h-96 flex-col items-start">
-				{#if streak >= 3}
-					<!-- TODO: Have this hover over image at an angle. Make it work art style -->
-					<p
-						bind:this={bonusAlert}
-						transition:fade
-						class="bonus-streak-alert flex shrink justify-center text-red-500"
-					>
-						<b>{streak} combo!!!</b>
-					</p>
-				{/if}
-
-				<div class="h-96 w-full">
-					{#if waiting}
-						<div class="h-full w-full">
-							<SquareFlipSpinner
-								color=""
-								background="linear-gradient(to bottom left, blue, pink)"
-							/>
-						</div>
-					{:else}
-						<img
-							alt="Creature to guess from. Starts with {answer?.name[0]}"
-							src={answer?.imageLink}
-							class="h-96 w-full"
-						/>
-					{/if}
+		<div class="h-96 w-fit">
+			{#if waiting}
+				<div class="h-full w-full">
+					<SquareFlipSpinner color="" background="linear-gradient(to bottom left, blue, pink)" />
 				</div>
-			</div>
-
-			<br />
-
-			<div id="buttons" class="flex w-full flex-row gap-4 p-8">
-				<Button class="h-16 w-full text-xl" disabled={waiting} on:click={answerPalWorld}
-					><b>PalWorld</b></Button
-				>
-				<Button class="h-16 w-full text-xl" disabled={waiting} on:click={answerPokemon}
-					><b>Pokémon</b></Button
-				>
-			</div>
+			{:else}
+				<img
+					alt="Creature to guess from. Starts with {answer?.name[0]}"
+					src={answer?.imageLink}
+					class="h-96 w-fit"
+				/>
+			{/if}
+			<!-- </div> -->
 		</div>
 	</div>
 </div>
@@ -154,15 +151,19 @@
 		animation: pulse 2s ease-in-out infinite;
 	}
 
+	.greyScale {
+		filter: grayscale();
+	}
+
 	@keyframes pulse {
 		0% {
-			transform: scale(1) rotate(-45deg) translate(-33%);
+			transform: scale(1);
 		}
 		50% {
-			transform: scale(1.5) rotate(-45deg) translate(-33%);
+			transform: scale(1.5);
 		}
 		100% {
-			transform: scale(1) rotate(-45deg) translate(-33%);
+			transform: scale(1);
 		}
 	}
 </style>
