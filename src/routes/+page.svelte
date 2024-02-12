@@ -77,8 +77,10 @@
 	}}
 />
 
+<!-- TODO: Added pop up on load explaining the game -->
+
 <div class="flex h-screen w-screen flex-col items-center justify-center">
-	<div class="fixed z-10 flex h-screen flex-row">
+	<div class="fixed z-10 flex h-screen flex-col md:flex-row">
 		<button on:click={answerPalWorld}>
 			<!-- svelte-ignore a11y-img-redundant-alt -->
 			<img
