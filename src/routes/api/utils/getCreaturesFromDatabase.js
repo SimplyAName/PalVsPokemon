@@ -57,8 +57,6 @@ function pickRandomIds(idList, amount) {
 	let result = [];
 	let tempCopy = [...idList];
 
-	console.log(`idList: ${idList}`);
-
 	for (let i = 0; i < amount; i++) {
 		if (tempCopy.length === 0) break;
 
@@ -68,8 +66,6 @@ function pickRandomIds(idList, amount) {
 
 		tempCopy.splice(rand, 1);
 	}
-
-	console.log(`count: ${result}`);
 
 	return result;
 }

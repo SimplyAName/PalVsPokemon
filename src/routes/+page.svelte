@@ -1,10 +1,7 @@
 <script lang="ts">
 	import { SquareFlipSpinner } from '$lib/components/ui/animations/SquareFlipSpinner';
 	import type { Creature } from '@prisma/client';
-	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-
-	onMount(getRandCreature);
 
 	let wins = 0;
 	let loses = 0;
@@ -19,11 +16,9 @@
 
 	let currCreature: Creature;
 
-	function newRandCreature() {
-		randCreaturePromise = getRandCreature();
-	}
-
 	async function getRandCreature() {
+		console.log('Making new request');
+
 		waiting = true;
 
 		const result = await fetch('/api/question', {
@@ -62,7 +57,7 @@
 			streak = 0;
 		}
 
-		newRandCreature();
+		randCreaturePromise = getRandCreature();
 	}
 </script>
 
@@ -75,8 +70,10 @@
 		switch (event.key) {
 			case 'ArrowLeft':
 				answerPalWorld();
+				break;
 			case 'ArrowRight':
 				answerPokemon();
+				break;
 		}
 	}}
 />
