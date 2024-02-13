@@ -93,7 +93,7 @@
 				class:greyScale={pokemonHovered}
 				src="/images/background/Backgroundbg-left.webp"
 				alt="Collection of PalWorld on the left of the battleground"
-				class="z-10 transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+				class="z-10 transition-all duration-300 ease-in-out hover:z-20 hover:scale-110 relative"
 				on:mouseenter={() => {
 					palworldHovered = true;
 				}}
@@ -109,7 +109,7 @@
 				class:greyScale={palworldHovered}
 				src="/images/background/Backgroundbg-right.webp"
 				alt="Collection of Pokémon on the right of the battleground"
-				class="z-10 transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+				class="z-10 transition-all duration-300 ease-in-out hover:z-20 hover:scale-110 relative"
 				on:mouseenter={() => {
 					pokemonHovered = true;
 				}}
