@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { SquareFlipSpinner } from '$lib/components/ui/animations/SquareFlipSpinner';
+	import type { Creature } from '@prisma/client';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 
 	onMount(getRandCreature);
-
-	let dialogMessage = '';
 
 	let wins = 0;
 	let loses = 0;
@@ -13,13 +12,12 @@
 	let palworldHovered = false;
 	let pokemonHovered = false;
 	let bonusAlert: HTMLElement;
-	let dialog: any;
 
 	let waiting = false;
 
 	let randCreaturePromise = getRandCreature();
 
-	let currCreature: Promise<any>;
+	let currCreature: Creature;
 
 	function newRandCreature() {
 		randCreaturePromise = getRandCreature();
@@ -93,7 +91,7 @@
 				class:greyScale={pokemonHovered}
 				src="/images/background/Backgroundbg-left.webp"
 				alt="Collection of PalWorld on the left of the battleground"
-				class="z-10 transition-all duration-300 ease-in-out hover:z-20 hover:scale-110 relative"
+				class="relative transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
 				on:mouseenter={() => {
 					palworldHovered = true;
 				}}
@@ -109,7 +107,7 @@
 				class:greyScale={palworldHovered}
 				src="/images/background/Backgroundbg-right.webp"
 				alt="Collection of Pokémon on the right of the battleground"
-				class="z-10 transition-all duration-300 ease-in-out hover:z-20 hover:scale-110 relative"
+				class="relative transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
 				on:mouseenter={() => {
 					pokemonHovered = true;
 				}}
@@ -123,15 +121,16 @@
 	<div
 		class="z-50 flex aspect-square w-fit flex-col items-center bg-gradient-radial from-white to-transparent to-80% p-8"
 	>
-		<div>
-			You have {wins} correct and {loses} wrong
+		<div class="text-5xl">
+			<span class="text-green-700">{wins}</span> : <span class="text-red-600">{loses}</span>
 		</div>
+		<br />
 		{#if streak >= 3}
 			<!-- TODO: Have this hover over image at an angle. Make it work art style -->
 			<p
 				bind:this={bonusAlert}
 				transition:fade
-				class="bonus-streak-alert flex justify-center text-red-500"
+				class="bonus-streak-alert flex justify-center text-xl text-red-500"
 			>
 				<b>{streak} combo!!!</b>
 			</p>
