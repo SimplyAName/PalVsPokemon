@@ -1,42 +1,55 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
 	import { SquareFlipSpinner } from '$lib/components/ui/animations/SquareFlipSpinner';
-	import { onMount } from 'svelte';
+	import type { Creature } from '@prisma/client';
 	import { fade } from 'svelte/transition';
-	import { spring } from 'svelte/motion';
-
-	onMount(getRandCreature);
 
 	let wins = 0;
 	let loses = 0;
 	let streak = 0;
+	let palworldHovered = false;
+	let pokemonHovered = false;
+	let bonusAlert: HTMLElement;
 
 	let waiting = false;
 
-	let answer: {
-		id: number;
-		name: string;
-		originGame: string;
-		imageLink: string;
-		createdAt: Date;
-	} | null = null;
+	let randCreaturePromise = getRandCreature();
+
+	let currCreature: Creature;
 
 	async function getRandCreature() {
+		console.log('Making new request');
+
 		waiting = true;
-		const response = await fetch('/api/question', {
+
+		const result = await fetch('/api/question', {
 			method: 'GET',
 			headers: {
 				'content-type': 'application/json'
 			}
 		});
 
-		answer = await response.json();
-
 		waiting = false;
+
+		if (result.ok) {
+			currCreature = await result.json();
+			return currCreature;
+		}
+
+		console.error(result);
+
+		throw new Error(`Failed to get questions! Status: ${result.status}`);
 	}
 
-	function answerQuestion(submitted: String) {
-		if (submitted === answer?.originGame) {
+	function answerPalWorld() {
+		_answerQuestion('PalWorld');
+	}
+
+	function answerPokemon() {
+		_answerQuestion('Pokémon');
+	}
+
+	function _answerQuestion(submitted: String) {
+		if (submitted === currCreature?.originGame) {
 			wins++;
 			streak++;
 		} else {
@@ -44,72 +57,116 @@
 			streak = 0;
 		}
 
-		getRandCreature();
+		randCreaturePromise = getRandCreature();
 	}
-
-	const textSize = spring(1, {
-		stiffness: 0.1,
-		damping: 1,
-		precision: 0.001
-	});
-
-	const zoomIn = setInterval(() => {
-		textSize.set(1.5);
-	}, 400);
-
-	const zoomOut = setInterval(() => {
-		textSize.set(1);
-	}, 800);
 </script>
 
-<div class="container flex h-screen flex-col justify-center">
-	<h1 class="text-center text-3xl">Welcome to Pal Vs Pokémon</h1>
-	<p class="text-center">
-		Below will have either creature from Pokémon or PalWorld. Try and get the highest streak you
-		can!
-	</p>
-	<br />
+<svelte:window
+	on:keydown|preventDefault={(event) => {
+		if (waiting) {
+			return;
+		}
 
-	<div id="gameWindow" class="flex w-full flex-col items-center">
-		<div>
-			You have {wins} correct and {loses} wrong
+		switch (event.key) {
+			case 'ArrowLeft':
+				answerPalWorld();
+				break;
+			case 'ArrowRight':
+				answerPokemon();
+				break;
+		}
+	}}
+/>
+
+<!-- TODO: Added pop up on load explaining the game -->
+
+<div class="flex h-screen w-screen flex-col items-center justify-center">
+	<div class="fixed z-10 flex h-screen flex-col md:flex-row">
+		<button disabled={waiting} on:click={answerPalWorld}>
+			<img
+				draggable="false"
+				class:greyScale={pokemonHovered}
+				src="/images/background/Backgroundbg-left.webp"
+				alt="Collection of PalWorld on the left of the battleground"
+				class="relative transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+				on:mouseenter={() => {
+					palworldHovered = true;
+				}}
+				on:mouseleave={() => {
+					palworldHovered = false;
+				}}
+			/>
+		</button>
+
+		<button disabled={waiting} on:click={answerPokemon}>
+			<img
+				draggable="false"
+				class:greyScale={palworldHovered}
+				src="/images/background/Backgroundbg-right.webp"
+				alt="Collection of Pokémon on the right of the battleground"
+				class="relative transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+				on:mouseenter={() => {
+					pokemonHovered = true;
+				}}
+				on:mouseleave={() => {
+					pokemonHovered = false;
+				}}
+			/>
+		</button>
+	</div>
+
+	<div
+		class="z-50 flex aspect-square w-fit flex-col items-center bg-gradient-radial from-white to-transparent to-80% p-8"
+	>
+		<div class="text-5xl">
+			<span class="text-green-700">{wins}</span> : <span class="text-red-600">{loses}</span>
 		</div>
-
-		<div class="flex h-96 flex-col justify-center">
-			{#if streak >= 3}
-				<!-- TODO: Have this hover over image at an angle. Make it work art style -->
-				<p transition:fade class="mt-4 block" style="transform: scale({$textSize});">
-					{streak} combo!!!
-				</p>
-			{/if}
-			{#if waiting}
-				<SquareFlipSpinner color="" background="linear-gradient(to bottom left, blue, pink)" />
-			{:else}
-				<img
-					alt="Creature to guess from. Starts with {answer?.name[0]}"
-					src={answer?.imageLink}
-					class="h-96 w-full"
-				/>
-			{/if}
-		</div>
-
 		<br />
+		{#if streak >= 3}
+			<!-- TODO: Have this hover over image at an angle. Make it work art style -->
+			<p
+				bind:this={bonusAlert}
+				transition:fade
+				class="bonus-streak-alert flex justify-center text-xl text-red-500"
+			>
+				<b>{streak} combo!!!</b>
+			</p>
+		{/if}
 
-		<div id="buttons" class="flex w-full flex-row gap-4 p-8">
-			<Button
-				class="h-16 w-full text-xl"
-				disabled={waiting}
-				on:click={() => {
-					answerQuestion('PalWorld');
-				}}><b>PalWorld</b></Button
-			>
-			<Button
-				class="h-16 w-full text-xl"
-				disabled={waiting}
-				on:click={() => {
-					answerQuestion('Pokémon');
-				}}><b>Pokémon</b></Button
-			>
+		<div class="flex h-[33dvh] w-fit flex-col justify-center">
+			{#await randCreaturePromise}
+				<SquareFlipSpinner color="" background="linear-gradient(to bottom left, blue, pink)" />
+			{:then creature}
+				<img
+					alt="Creature to guess from. Starts with {creature?.name[0]}"
+					src={creature?.imageLink}
+					class="h-full w-fit"
+				/>
+			{:catch error}
+				<p style="color: red">{error.message}</p>
+			{/await}
 		</div>
 	</div>
 </div>
+
+<style>
+	.bonus-streak-alert {
+		animation: pulse 2s ease-in-out infinite;
+	}
+
+	.greyScale {
+		filter: grayscale();
+	}
+
+	@keyframes pulse {
+		0% {
+			transform: scale(1);
+		}
+		50% {
+			transform: scale(1.5);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+</style>
