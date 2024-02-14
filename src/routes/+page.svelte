@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { SquareFlipSpinner } from '$lib/components/ui/animations/SquareFlipSpinner';
+	import * as Dialog from '$lib/components/ui/dialog';
 	import type { Creature } from '@prisma/client';
 	import { fade } from 'svelte/transition';
 
@@ -8,6 +9,7 @@
 	let streak = 0;
 	let palworldHovered = false;
 	let pokemonHovered = false;
+	let dialogOpen = false;
 	let bonusAlert: HTMLElement;
 
 	let waiting = false;
@@ -17,14 +19,12 @@
 	let currCreature: Creature;
 
 	async function getRandCreature() {
-		console.log('Making new request');
-
 		waiting = true;
 
 		const result = await fetch('/api/question', {
 			method: 'GET',
 			headers: {
-				'content-type': 'application/json'
+				Accept: 'application/json'
 			}
 		});
 
@@ -59,6 +59,10 @@
 
 		randCreaturePromise = getRandCreature();
 	}
+
+	let dialogChange = function dialogChange(open: boolean) {
+		dialogOpen = open;
+	};
 </script>
 
 <svelte:window
@@ -81,6 +85,18 @@
 <!-- TODO: Added pop up on load explaining the game -->
 
 <div class="flex h-screen w-screen flex-col items-center justify-center">
+	<Dialog.Root bind:open={dialogOpen} bind:onOpenChange={dialogChange}>
+		<Dialog.Content>
+			<Dialog.Header>
+				<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
+				<Dialog.Description>
+					This action cannot be undone. This will permanently delete your account and remove your
+					data from our servers.
+				</Dialog.Description>
+			</Dialog.Header>
+		</Dialog.Content>
+	</Dialog.Root>
+
 	<div class="fixed z-10 flex h-screen flex-col md:flex-row">
 		<button disabled={waiting} on:click={answerPalWorld}>
 			<img
