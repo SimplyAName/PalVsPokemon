@@ -1,8 +1,19 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { SquareFlipSpinner } from '$lib/components/ui/animations/SquareFlipSpinner';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import type { Creature } from '@prisma/client';
 	import { fade } from 'svelte/transition';
+
+	export let data;
+
+	onMount(() => {
+		console.log(data);
+
+		if (!data.visited) {
+			dialogChange(true);
+		}
+	});
 
 	let wins = 0;
 	let loses = 0;
@@ -88,10 +99,13 @@
 	<Dialog.Root bind:open={dialogOpen} bind:onOpenChange={dialogChange}>
 		<Dialog.Content>
 			<Dialog.Header>
-				<Dialog.Title>Are you sure absolutely sure?</Dialog.Title>
+				<Dialog.Title><div class="text-center">Palworld Vs Pokémon</div></Dialog.Title>
 				<Dialog.Description>
-					This action cannot be undone. This will permanently delete your account and remove your
-					data from our servers.
+					Welcome!
+
+					<br />
+
+					Can you tell the pals from pokémon? Find out!
 				</Dialog.Description>
 			</Dialog.Header>
 		</Dialog.Content>
