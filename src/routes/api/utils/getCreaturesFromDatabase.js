@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import dbClient from '$lib/database/db.server';
 
 /**
  * @typedef { import("@prisma/client").Creature } Creature
@@ -9,15 +9,13 @@ import { PrismaClient } from '@prisma/client';
  * @returns {Promise<Creature[]>} creatureList
  */
 export async function getRandomCreatures(amount) {
-	let prisma = new PrismaClient();
-
 	/**
 	 * @type {Creature[]}
 	 */
 	let response;
 
 	try {
-		const allIds = await prisma.creature.findMany({
+		const allIds = await dbClient.creature.findMany({
 			select: {
 				id: true
 			}
@@ -27,7 +25,7 @@ export async function getRandomCreatures(amount) {
 
 		let randIds = pickRandomIds(flattenedIds, amount);
 
-		let randCreatureResult = await prisma.creature.findMany({
+		let randCreatureResult = await dbClient.creature.findMany({
 			where: { id: { in: randIds } }
 		});
 
@@ -40,8 +38,6 @@ export async function getRandomCreatures(amount) {
 		console.log(e);
 
 		response = [];
-	} finally {
-		await prisma.$disconnect();
 	}
 
 	return response;
