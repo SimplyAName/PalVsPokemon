@@ -147,15 +147,15 @@
 	}}
 />
 
-<div class="flex h-screen w-screen flex-col items-center">
-	<div class="fixed z-10 flex h-screen flex-col md:flex-row">
+<div class="flex h-screen flex-col items-center">
+	<div class="fixed z-10 flex h-screen w-full flex-row overflow-hidden">
 		<button disabled={waiting} on:click={answerPalWorld}>
 			<img
 				draggable="false"
 				class:grey-scale={pokemonHovered}
 				src="/images/background/Backgroundbg-left.webp"
 				alt="Collection of PalWorld on the left of the battleground"
-				class="relative transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+				class="relative w-full object-cover transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
 				on:mouseenter={() => {
 					palworldHovered = true;
 				}}
@@ -171,7 +171,7 @@
 				class:grey-scale={palworldHovered}
 				src="/images/background/Backgroundbg-right.webp"
 				alt="Collection of Pokémon on the right of the battleground"
-				class="relative transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+				class="relative w-full object-cover transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
 				on:mouseenter={() => {
 					pokemonHovered = true;
 				}}
@@ -182,7 +182,7 @@
 		</button>
 	</div>
 
-	<div class="z-20 w-1/6">
+	<div class="z-20 w-full xl:w-1/4">
 		<Scoreboard {wins} {loses} round={roundCount} />
 		{#if streak >= 3}
 			<!-- TODO: Have this hover over image at an angle. Make it work art style -->
