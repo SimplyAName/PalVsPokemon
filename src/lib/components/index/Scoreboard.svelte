@@ -11,7 +11,7 @@
 <div
 	class="flex flex-row items-center justify-center rounded-b-lg border-x border-b border-black bg-white align-middle text-5xl"
 >
-	<div class="grow bg-gradient-to-r from-green-700 py-4 pb-5 text-left">
+	<div class="grow rounded-bl-lg bg-gradient-to-r from-green-700 py-4 pb-5 text-left">
 		🏆{wins}
 	</div>
 	<div class="text-center text-2xl">
@@ -19,7 +19,7 @@
 		<br />
 		{roundCount}
 	</div>
-	<div class="grow bg-gradient-to-l from-red-700 py-4 pb-5 text-right">
+	<div class="grow rounded-br-lg bg-gradient-to-l from-red-700 py-4 pb-5 text-right">
 		{loses}💀
 	</div>
 </div>
