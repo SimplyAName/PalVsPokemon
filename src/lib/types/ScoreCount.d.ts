@@ -1,0 +1,1 @@
+export type Score = { round: number; score: number };
