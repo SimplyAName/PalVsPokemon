@@ -1,11 +1,13 @@
 <script lang="ts">
 	import type { Creature } from '@prisma/client';
+	import type { Answer } from '$lib/types/Answer';
 	import IntroDialog from '../lib/components/index/IntroDialog.svelte';
 	import EndGameDialog from '../lib/components/index/EndGameDialog.svelte';
 	import Scoreboard from '$lib/components/index/Scoreboard.svelte';
 	import { SquareFlipSpinner } from '$lib/components/ui/animations/SquareFlipSpinner';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
+	import type { Score } from '$lib/types/ScoreCount';
 
 	export let data;
 
@@ -13,16 +15,13 @@
 		console.log(data);
 
 		if (!data.visited) {
-			let introDialogStatus = true;
+			introDialogStatus = true;
 		}
 	});
 
-	type Answer = { creature: Creature; correct: boolean };
-
+	let scoreCounter: Score[] = [];
 	let roundCount = 0;
 	let totalScore = 0;
-	let wins = 0;
-	let loses = 0;
 	let streak = 0;
 
 	let currentPokemonIndex = 0;
@@ -37,6 +36,7 @@
 	let endGameDialogStatus = false;
 
 	let pokeButton: HTMLButtonElement;
+	let answerBox: HTMLDivElement;
 
 	let randCreaturePromise = getRandCreature();
 
@@ -59,7 +59,18 @@
 		waiting = false;
 
 		if (resultList.ok) {
-			return (questionList = await resultList.json());
+			questionList = await resultList.json();
+
+			questionList.map((currQuestion) => {
+				let tempAnswer: Answer = {
+					creature: currQuestion,
+					correct: null
+				};
+
+				answerList = [...answerList, tempAnswer];
+			});
+
+			return questionList;
 		}
 
 		console.error(resultList);
@@ -75,23 +86,28 @@
 		_answerQuestion('Pokémon');
 	}
 
-	function _answerQuestion(submitted: String) {
-		let tempAnswer: Answer = {
-			creature: questionList[currentPokemonIndex],
-			correct: false
-		};
-
-		if (submitted === questionList[currentPokemonIndex]?.originGame) {
-			tempAnswer.correct = true;
-			totalScore++;
-			wins++;
-			streak++;
+	function showAnswerAnimation(correct: boolean) {
+		if (correct) {
+			//Animate win
 		} else {
-			loses++;
-			streak = 0;
+			//Animate loss
 		}
+	}
 
-		answerList = [...answerList, tempAnswer];
+	function _answerQuestion(submitted: String) {
+		if (submitted === questionList[currentPokemonIndex]?.originGame) {
+			answerList[currentPokemonIndex].correct = true;
+
+			totalScore++;
+			streak++;
+
+			showAnswerAnimation(true);
+		} else {
+			answerList[currentPokemonIndex].correct = false;
+			streak = 0;
+
+			showAnswerAnimation(false);
+		}
 
 		console.log(currentPokemonIndex, questionList.length);
 
@@ -102,32 +118,35 @@
 
 			endGameDialogStatus = true;
 
+			let tempScore: Score = { round: roundCount, score: totalScore };
+
+			scoreCounter = [...scoreCounter, tempScore];
+
 			return;
 		}
 
 		currentPokemonIndex++;
 	}
 
-	let restartFunction = function resetGame() {
-		waiting = true;
-
-		wins = 0;
-		loses = 0;
-		totalScore = 0;
+	let restartFunction = () => {
 		roundCount = 0;
 		streak = 0;
+
+		resetGame();
+	};
+
+	let continueFunction = () => {
+		resetGame();
+	};
+
+	function resetGame() {
+		totalScore = 0;
 		answerList = [];
 
 		randCreaturePromise = getRandCreature();
 
 		endGameDialogStatus = false;
-	};
-
-	let continueFunction = function continueGame() {
-		randCreaturePromise = getRandCreature();
-
-		endGameDialogStatus = false;
-	};
+	}
 </script>
 
 <svelte:window
@@ -183,7 +202,7 @@
 	</div>
 
 	<div class="z-20 w-full xl:w-1/4">
-		<Scoreboard {wins} {loses} round={roundCount} />
+		<Scoreboard round={roundCount} bind:answerList />
 		{#if streak >= 3}
 			<!-- TODO: Have this hover over image at an angle. Make it work art style -->
 			<p transition:fade class="bonus-streak-alert flex justify-center text-xl text-red-500">
@@ -197,6 +216,7 @@
 			{#await randCreaturePromise}
 				<SquareFlipSpinner background="linear-gradient(to bottom left, blue, pink)" />
 			{:then}
+				<div bind:this={answerBox}></div>
 				<img
 					alt="Creature to guess from. Starts with {questionList[currentPokemonIndex].name}"
 					src={questionList[currentPokemonIndex].imageLink}
@@ -217,8 +237,7 @@
 		bind:restartFunction
 		bind:continueFunction
 		bind:answerList
-		bind:score={totalScore}
-		bind:rounds={roundCount}
+		bind:scoreCounter
 	/>
 </div>
 

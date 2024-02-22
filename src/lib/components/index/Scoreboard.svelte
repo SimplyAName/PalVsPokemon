@@ -1,25 +1,28 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
+	import type { Answer } from '$lib/types/Answer';
+	import type { Creature } from '@prisma/client';
 
 	let roundCount = 0;
 	export { roundCount as round };
 
-	export let wins = 0;
-	export let loses = 0;
+	export let answerList: Answer[] = [];
 </script>
 
 <div
-	class="flex flex-row items-center justify-center rounded-b-lg border-x border-b border-black bg-white align-middle text-5xl"
+	class="flex flex-col items-center justify-center rounded-b-lg border-x border-b border-black bg-white bg-gradient-to-l from-purple-700 via-blue-700 to-red-700 text-center align-middle"
 >
-	<div class="grow rounded-bl-lg bg-gradient-to-r from-green-700 py-4 pb-5 text-left">
-		🏆{wins}
+	<div class="p-1 text-2xl">
+		Round {roundCount}
 	</div>
-	<div class="text-center text-2xl">
-		Round
-		<br />
-		{roundCount}
-	</div>
-	<div class="grow rounded-br-lg bg-gradient-to-l from-red-700 py-4 pb-5 text-right">
-		{loses}💀
+	<div class="pb-2 text-4xl">
+		{#each answerList as currAnswer}
+			{#if currAnswer.correct}
+				🟩
+			{:else if currAnswer.correct === false}
+				🟥
+			{:else}
+				⬜
+			{/if}
+		{/each}
 	</div>
 </div>

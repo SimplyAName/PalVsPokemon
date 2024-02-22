@@ -1,15 +1,21 @@
 <script lang="ts">
+	import type { Score } from '$lib/types/ScoreCount';
+	import type { Answer } from '$lib/types/Answer';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Carousel from '$lib/components/ui/carousel/index.js';
+	import * as Table from '$lib/components/ui/table';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import type { Creature } from '@prisma/client';
-
-	type Answer = { creature: Creature; correct: boolean };
 
 	export let answerList: Answer[] = [];
-	export let score = 0;
-	export let rounds = 0;
+	export let scoreCounter: Score[] = [];
+	let totalScore: number = 0;
+
+	$: {
+		totalScore = scoreCounter.reduce((previous, next) => {
+			return (previous += next.score);
+		}, 0);
+	}
 
 	export let endGameDialogStatus = false;
 
@@ -33,7 +39,7 @@
 	closeOnOutsideClick={endGameDialogClickOnClose}
 	closeOnEscape={endGameDialogClickOnClose}
 >
-	<Dialog.Content class="max-w-fit text-center">
+	<Dialog.Content class="max-w-fit text-center" closeButton={false}>
 		<Dialog.Header>
 			<Dialog.Title class="text-center">Palworld Vs Pokémon</Dialog.Title>
 			<Dialog.Description class="text-center">
@@ -41,9 +47,26 @@
 			</Dialog.Description>
 		</Dialog.Header>
 
-		Rounds: {rounds}
-		<br />
-		Score: {score}
+		<Table.Root>
+			<Table.Header>
+				<Table.Row>
+					<Table.Head class="w-1/3 border-r text-center">Round</Table.Head>
+					<Table.Head class="text-center">Score</Table.Head>
+				</Table.Row>
+			</Table.Header>
+			<Table.Body>
+				{#each scoreCounter as score}
+					<Table.Row>
+						<Table.Cell class="border-r font-medium">{score.round}</Table.Cell>
+						<Table.Cell>{score.score}</Table.Cell>
+					</Table.Row>
+				{/each}
+				<Table.Row>
+					<Table.Cell class="border-r font-medium">Total Score</Table.Cell>
+					<Table.Cell>{totalScore}</Table.Cell>
+				</Table.Row>
+			</Table.Body>
+		</Table.Root>
 
 		{#if answerList.length > 0}
 			<Carousel.Root opts={{ loop: true }} class="mx-8 max-w-sm">
@@ -79,6 +102,7 @@
 				<Carousel.Next />
 			</Carousel.Root>
 		{/if}
+
 		<div class="flex flex-row gap-4">
 			<Button class="w-full" on:click={restartFunction}>Restart</Button>
 			<Button class="w-full" on:click={continueFunction}>Continue</Button>
