@@ -43,12 +43,6 @@
 	async function getRandCreature() {
 		waiting = true;
 
-		questionList = [];
-		currentPokemonIndex = 0;
-
-		roundCount++;
-		// currentPokemonIndex = 0;
-
 		const resultList = await fetch('/api/question/10', {
 			method: 'GET',
 			headers: {
@@ -111,26 +105,40 @@
 
 		console.log(currentPokemonIndex, questionList.length);
 
+		//End game
 		if (currentPokemonIndex >= questionList.length - 1) {
-			console.log('All questions answered. Resetting');
-
-			waiting = true;
-
 			endGameDialogStatus = true;
 
-			let tempScore: Score = { round: roundCount, score: totalScore };
-
-			scoreCounter = [...scoreCounter, tempScore];
-
-			return;
+			return refreshGameState();
 		}
 
 		currentPokemonIndex++;
 	}
 
+	function refreshGameState() {
+		console.log('Refreshing Game State');
+
+		waiting = true;
+
+		let tempScore: Score = { round: roundCount, score: totalScore, answerList: answerList };
+
+		scoreCounter = [...scoreCounter, tempScore];
+
+		questionList = [];
+		answerList = [];
+		currentPokemonIndex = 0;
+
+		randCreaturePromise = getRandCreature();
+
+		roundCount++;
+
+		return true;
+	}
+
 	let restartFunction = () => {
 		roundCount = 0;
 		streak = 0;
+		scoreCounter = [];
 
 		resetGame();
 	};
@@ -141,9 +149,6 @@
 
 	function resetGame() {
 		totalScore = 0;
-		answerList = [];
-
-		randCreaturePromise = getRandCreature();
 
 		endGameDialogStatus = false;
 	}
