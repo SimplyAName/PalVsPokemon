@@ -20,7 +20,7 @@
 	});
 
 	let scoreCounter: Score[] = [];
-	let roundCount = 0;
+	let roundCount = 1;
 	let totalScore = 0;
 	let streak = 0;
 
@@ -136,7 +136,7 @@
 	}
 
 	let restartFunction = () => {
-		roundCount = 0;
+		roundCount = 1;
 		streak = 0;
 		scoreCounter = [];
 
@@ -206,8 +206,9 @@
 		</button>
 	</div>
 
-	<div class="z-20 w-full xl:w-1/4">
+	<div class="z-20 w-full xl:w-fit">
 		<Scoreboard round={roundCount} bind:answerList />
+
 		{#if streak >= 3}
 			<!-- TODO: Have this hover over image at an angle. Make it work art style -->
 			<p transition:fade class="bonus-streak-alert flex justify-center text-xl text-red-500">
@@ -241,7 +242,6 @@
 		bind:endGameDialogStatus
 		bind:restartFunction
 		bind:continueFunction
-		bind:answerList
 		bind:scoreCounter
 	/>
 </div>
