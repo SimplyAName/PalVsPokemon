@@ -1,14 +1,20 @@
 <script lang="ts">
 	import type { Creature } from '@prisma/client';
 	import type { Answer } from '$lib/types/Answer';
+	import type { Score } from '$lib/types/ScoreCount';
+
+	import { roundCounter, roundScore } from '$lib/stores/store';
+
+	import { shuffle } from '$lib/utils/shuffle-array';
+
 	import IntroDialog from '../lib/components/index/IntroDialog.svelte';
 	import EndGameDialog from '../lib/components/index/EndGameDialog.svelte';
 	import Scoreboard from '$lib/components/index/Scoreboard.svelte';
 	import { SquareFlipSpinner } from '$lib/components/ui/animations/SquareFlipSpinner';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import type { Score } from '$lib/types/ScoreCount';
 
+	//SETUP
 	export let data;
 
 	onMount(() => {
@@ -19,9 +25,8 @@
 		}
 	});
 
+	//STATE
 	let scoreCounter: Score[] = [];
-	let roundCount = 1;
-	let totalScore = 0;
 	let streak = 0;
 
 	let currentPokemonIndex = 0;
@@ -55,14 +60,16 @@
 		if (resultList.ok) {
 			questionList = await resultList.json();
 
-			questionList.map((currQuestion) => {
+			questionList = shuffle(questionList);
+
+			answerList = questionList.reduce((previousValue: Answer[], currQuestion) => {
 				let tempAnswer: Answer = {
 					creature: currQuestion,
 					correct: null
 				};
 
-				answerList = [...answerList, tempAnswer];
-			});
+				return (previousValue = [...previousValue, tempAnswer]);
+			}, []);
 
 			return questionList;
 		}
@@ -92,7 +99,7 @@
 		if (submitted === questionList[currentPokemonIndex]?.originGame) {
 			answerList[currentPokemonIndex].correct = true;
 
-			totalScore++;
+			$roundScore++;
 			streak++;
 
 			showAnswerAnimation(true);
@@ -120,23 +127,21 @@
 
 		waiting = true;
 
-		let tempScore: Score = { round: roundCount, score: totalScore, answerList: answerList };
+		let tempScore: Score = { round: $roundCounter, score: $roundScore, answerList: answerList };
 
 		scoreCounter = [...scoreCounter, tempScore];
 
-		questionList = [];
-		answerList = [];
 		currentPokemonIndex = 0;
 
 		randCreaturePromise = getRandCreature();
 
-		roundCount++;
+		$roundCounter++;
 
 		return true;
 	}
 
 	let restartFunction = () => {
-		roundCount = 1;
+		$roundCounter = 1;
 		streak = 0;
 		scoreCounter = [];
 
@@ -148,10 +153,12 @@
 	};
 
 	function resetGame() {
-		totalScore = 0;
+		$roundScore = 0;
 
 		endGameDialogStatus = false;
 	}
+
+	function shuffleList(list: any[]) {}
 </script>
 
 <svelte:window
@@ -207,7 +214,7 @@
 	</div>
 
 	<div class="z-20 w-full xl:w-fit">
-		<Scoreboard round={roundCount} bind:answerList />
+		<Scoreboard bind:answerList />
 
 		{#if streak >= 3}
 			<!-- TODO: Have this hover over image at an angle. Make it work art style -->
