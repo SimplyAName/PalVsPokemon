@@ -1,5 +1,15 @@
 <script lang="ts">
+	//TODO: Work out if it's best to keep everything here or add more components
+	// import GameWindow from '$lib/components/index/GameWindow.svelte';
+
 	import type { Creature } from '@prisma/client';
+	import type { Answer } from '$lib/types/Answer';
+	import type { Score } from '$lib/types/ScoreCount';
+
+	import { answerList, roundCounter } from '$lib/stores/store';
+
+	import { shuffle } from '$lib/utils/shuffle-array';
+
 	import IntroDialog from '../lib/components/index/IntroDialog.svelte';
 	import EndGameDialog from '../lib/components/index/EndGameDialog.svelte';
 	import Scoreboard from '$lib/components/index/Scoreboard.svelte';
@@ -7,27 +17,24 @@
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 
+	//SETUP
 	export let data;
 
 	onMount(() => {
 		console.log(data);
 
 		if (!data.visited) {
-			let introDialogStatus = true;
+			introDialogStatus = true;
 		}
 	});
 
-	type Answer = { creature: Creature; correct: boolean };
-
-	let roundCount = 0;
-	let totalScore = 0;
-	let wins = 0;
-	let loses = 0;
+	//STATE
+	let roundScore = 0;
+	let scoreCounter: Score[] = [];
 	let streak = 0;
 
+	let questionAmount = 10;
 	let currentPokemonIndex = 0;
-	let questionList: Creature[] = [];
-	let answerList: Answer[] = [];
 
 	let waiting = false;
 	let palworldHovered = false;
@@ -37,19 +44,14 @@
 	let endGameDialogStatus = false;
 
 	let pokeButton: HTMLButtonElement;
+	let answerBox: HTMLDivElement;
 
 	let randCreaturePromise = getRandCreature();
 
 	async function getRandCreature() {
 		waiting = true;
 
-		questionList = [];
-		currentPokemonIndex = 0;
-
-		roundCount++;
-		// currentPokemonIndex = 0;
-
-		const resultList = await fetch('/api/question/10', {
+		const resultList = await fetch(`/api/question/${questionAmount}`, {
 			method: 'GET',
 			headers: {
 				Accept: 'application/json'
@@ -59,7 +61,20 @@
 		waiting = false;
 
 		if (resultList.ok) {
-			return (questionList = await resultList.json());
+			let creatureList = await resultList.json();
+
+			creatureList = shuffle(creatureList);
+
+			$answerList = creatureList.reduce((previousValue: Answer[], currQuestion: Creature) => {
+				let tempAnswer: Answer = {
+					creature: currQuestion,
+					correct: null
+				};
+
+				return (previousValue = [...previousValue, tempAnswer]);
+			}, []);
+
+			return creatureList;
 		}
 
 		console.error(resultList);
@@ -75,64 +90,83 @@
 		_answerQuestion('Pokémon');
 	}
 
-	function _answerQuestion(submitted: String) {
-		let tempAnswer: Answer = {
-			creature: questionList[currentPokemonIndex],
-			correct: false
-		};
-
-		if (submitted === questionList[currentPokemonIndex]?.originGame) {
-			tempAnswer.correct = true;
-			totalScore++;
-			wins++;
-			streak++;
+	function showAnswerAnimation(correct: boolean) {
+		if (correct) {
+			//Animate win
 		} else {
-			loses++;
+			//Animate loss
+		}
+	}
+
+	function _answerQuestion(submitted: String) {
+		if (submitted === $answerList[currentPokemonIndex]?.creature.originGame) {
+			$answerList[currentPokemonIndex].correct = true;
+
+			roundScore++;
+			streak++;
+
+			showAnswerAnimation(true);
+		} else {
+			$answerList[currentPokemonIndex].correct = false;
 			streak = 0;
+
+			showAnswerAnimation(false);
 		}
 
-		answerList = [...answerList, tempAnswer];
-
-		console.log(currentPokemonIndex, questionList.length);
-
-		if (currentPokemonIndex >= questionList.length - 1) {
-			console.log('All questions answered. Resetting');
-
-			waiting = true;
-
+		//End game
+		if (currentPokemonIndex >= $answerList.length - 1) {
 			endGameDialogStatus = true;
 
-			return;
+			return refreshGameState();
 		}
 
 		currentPokemonIndex++;
 	}
 
-	let restartFunction = function resetGame() {
+	function refreshGameState() {
+		console.log('Refreshing Game State');
+
 		waiting = true;
 
-		wins = 0;
-		loses = 0;
-		totalScore = 0;
-		roundCount = 0;
+		let tempScore: Score = {
+			round: $roundCounter,
+			score: roundScore,
+			answerList: $answerList
+		};
+
+		scoreCounter = [...scoreCounter, tempScore];
+
+		currentPokemonIndex = 0;
+
+		randCreaturePromise = getRandCreature();
+
+		$roundCounter++;
+
+		return true;
+	}
+
+	let restartFunction = () => {
+		$roundCounter = 1;
 		streak = 0;
-		answerList = [];
+		scoreCounter = [];
 
-		randCreaturePromise = getRandCreature();
-
-		endGameDialogStatus = false;
+		resetGame();
 	};
 
-	let continueFunction = function continueGame() {
-		randCreaturePromise = getRandCreature();
+	let continueFunction = () => {
+		resetGame();
+	};
+
+	function resetGame() {
+		roundScore = 0;
 
 		endGameDialogStatus = false;
-	};
+	}
 </script>
 
 <svelte:window
 	on:keydown|preventDefault={(event) => {
-		if (waiting) {
+		if (waiting || endGameDialogStatus) {
 			return;
 		}
 
@@ -148,14 +182,14 @@
 />
 
 <div class="flex h-screen flex-col items-center">
-	<div class="fixed z-10 flex h-screen w-full flex-row overflow-hidden">
+	<div class="fixed z-10 flex min-h-full flex-row overflow-hidden">
 		<button disabled={waiting} on:click={answerPalWorld}>
 			<img
 				draggable="false"
 				class:grey-scale={pokemonHovered}
 				src="/images/background/Backgroundbg-left.webp"
 				alt="Collection of PalWorld on the left of the battleground"
-				class="relative w-full object-cover transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+				class="relative h-full object-cover object-right transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
 				on:mouseenter={() => {
 					palworldHovered = true;
 				}}
@@ -171,7 +205,7 @@
 				class:grey-scale={palworldHovered}
 				src="/images/background/Backgroundbg-right.webp"
 				alt="Collection of Pokémon on the right of the battleground"
-				class="relative w-full object-cover transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+				class="relative h-full object-cover object-left transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
 				on:mouseenter={() => {
 					pokemonHovered = true;
 				}}
@@ -182,8 +216,9 @@
 		</button>
 	</div>
 
-	<div class="z-20 w-full xl:w-1/4">
-		<Scoreboard {wins} {loses} round={roundCount} />
+	<div class="z-20 w-full xl:w-fit">
+		<Scoreboard />
+
 		{#if streak >= 3}
 			<!-- TODO: Have this hover over image at an angle. Make it work art style -->
 			<p transition:fade class="bonus-streak-alert flex justify-center text-xl text-red-500">
@@ -197,9 +232,10 @@
 			{#await randCreaturePromise}
 				<SquareFlipSpinner background="linear-gradient(to bottom left, blue, pink)" />
 			{:then}
+				<div bind:this={answerBox}></div>
 				<img
-					alt="Creature to guess from. Starts with {questionList[currentPokemonIndex].name}"
-					src={questionList[currentPokemonIndex].imageLink}
+					alt="Creature to guess from. Starts with {$answerList[currentPokemonIndex].creature.name}"
+					src={$answerList[currentPokemonIndex].creature.imageLink}
 					class="h-full w-fit"
 				/>
 			{:catch error}
@@ -216,9 +252,7 @@
 		bind:endGameDialogStatus
 		bind:restartFunction
 		bind:continueFunction
-		bind:answerList
-		bind:score={totalScore}
-		bind:rounds={roundCount}
+		bind:scoreCounter
 	/>
 </div>
 

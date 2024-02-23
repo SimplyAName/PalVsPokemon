@@ -1,25 +1,28 @@
 <script lang="ts">
-	import { fade } from 'svelte/transition';
+	import { answerList, roundCounter } from '$lib/stores/store';
 
-	let roundCount = 0;
-	export { roundCount as round };
+	let tempAnswerList = [];
 
-	export let wins = 0;
-	export let loses = 0;
+	answerList.subscribe((update) => {
+		tempAnswerList = update;
+	});
 </script>
 
 <div
-	class="flex flex-row items-center justify-center rounded-b-lg border-x border-b border-black bg-white align-middle text-5xl"
+	class="flex flex-col items-center justify-center rounded-b-lg border-x border-b border-blue-600 bg-gradient-to-r from-purple-500 to-blue-600 text-center align-middle"
 >
-	<div class="grow bg-gradient-to-r from-green-700 py-4 pb-5 text-left">
-		🏆{wins}
+	<div class="p-1 text-2xl">
+		Round {$roundCounter}
 	</div>
-	<div class="text-center text-2xl">
-		Round
-		<br />
-		{roundCount}
-	</div>
-	<div class="grow bg-gradient-to-l from-red-700 py-4 pb-5 text-right">
-		{loses}💀
+	<div class="w-full text-xl md:px-4 md:pb-4 md:text-4xl">
+		{#each $answerList as currAnswer}
+			{#if currAnswer.correct}
+				🟩
+			{:else if currAnswer.correct === false}
+				🟥
+			{:else}
+				⬜
+			{/if}
+		{/each}
 	</div>
 </div>
