@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Score } from '$lib/types/ScoreCount';
-	import type { Answer } from '$lib/types/Answer';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Carousel from '$lib/components/ui/carousel/index.js';
@@ -10,11 +9,9 @@
 	export let scoreCounter: Score[] = [];
 	let totalScore: number = 0;
 
-	$: {
-		totalScore = scoreCounter.reduce((previous, next) => {
-			return (previous += next.score);
-		}, 0);
-	}
+	$: totalScore = scoreCounter.reduce((previous, next) => {
+		return (previous += next.score);
+	}, 0);
 
 	export let endGameDialogStatus = false;
 

@@ -1,9 +1,12 @@
 <script lang="ts">
+	//TODO: Work out if it's best to keep everything here or add more components
+	// import GameWindow from '$lib/components/index/GameWindow.svelte';
+
 	import type { Creature } from '@prisma/client';
 	import type { Answer } from '$lib/types/Answer';
 	import type { Score } from '$lib/types/ScoreCount';
 
-	import { roundCounter, roundScore } from '$lib/stores/store';
+	import { answerList, roundCounter } from '$lib/stores/store';
 
 	import { shuffle } from '$lib/utils/shuffle-array';
 
@@ -26,12 +29,12 @@
 	});
 
 	//STATE
+	let roundScore = 0;
 	let scoreCounter: Score[] = [];
 	let streak = 0;
 
+	let questionAmount = 10;
 	let currentPokemonIndex = 0;
-	let questionList: Creature[] = [];
-	let answerList: Answer[] = [];
 
 	let waiting = false;
 	let palworldHovered = false;
@@ -48,7 +51,7 @@
 	async function getRandCreature() {
 		waiting = true;
 
-		const resultList = await fetch('/api/question/10', {
+		const resultList = await fetch(`/api/question/${questionAmount}`, {
 			method: 'GET',
 			headers: {
 				Accept: 'application/json'
@@ -58,11 +61,11 @@
 		waiting = false;
 
 		if (resultList.ok) {
-			questionList = await resultList.json();
+			let creatureList = await resultList.json();
 
-			questionList = shuffle(questionList);
+			creatureList = shuffle(creatureList);
 
-			answerList = questionList.reduce((previousValue: Answer[], currQuestion) => {
+			$answerList = creatureList.reduce((previousValue: Answer[], currQuestion: Creature) => {
 				let tempAnswer: Answer = {
 					creature: currQuestion,
 					correct: null
@@ -71,7 +74,7 @@
 				return (previousValue = [...previousValue, tempAnswer]);
 			}, []);
 
-			return questionList;
+			return creatureList;
 		}
 
 		console.error(resultList);
@@ -96,24 +99,22 @@
 	}
 
 	function _answerQuestion(submitted: String) {
-		if (submitted === questionList[currentPokemonIndex]?.originGame) {
-			answerList[currentPokemonIndex].correct = true;
+		if (submitted === $answerList[currentPokemonIndex]?.creature.originGame) {
+			$answerList[currentPokemonIndex].correct = true;
 
-			$roundScore++;
+			roundScore++;
 			streak++;
 
 			showAnswerAnimation(true);
 		} else {
-			answerList[currentPokemonIndex].correct = false;
+			$answerList[currentPokemonIndex].correct = false;
 			streak = 0;
 
 			showAnswerAnimation(false);
 		}
 
-		console.log(currentPokemonIndex, questionList.length);
-
 		//End game
-		if (currentPokemonIndex >= questionList.length - 1) {
+		if (currentPokemonIndex >= $answerList.length - 1) {
 			endGameDialogStatus = true;
 
 			return refreshGameState();
@@ -127,7 +128,11 @@
 
 		waiting = true;
 
-		let tempScore: Score = { round: $roundCounter, score: $roundScore, answerList: answerList };
+		let tempScore: Score = {
+			round: $roundCounter,
+			score: roundScore,
+			answerList: $answerList
+		};
 
 		scoreCounter = [...scoreCounter, tempScore];
 
@@ -153,17 +158,15 @@
 	};
 
 	function resetGame() {
-		$roundScore = 0;
+		roundScore = 0;
 
 		endGameDialogStatus = false;
 	}
-
-	function shuffleList(list: any[]) {}
 </script>
 
 <svelte:window
 	on:keydown|preventDefault={(event) => {
-		if (waiting) {
+		if (waiting || endGameDialogStatus) {
 			return;
 		}
 
@@ -179,14 +182,14 @@
 />
 
 <div class="flex h-screen flex-col items-center">
-	<div class="fixed z-10 flex h-screen w-full flex-row overflow-hidden">
+	<div class="fixed z-10 flex min-h-full flex-row overflow-hidden">
 		<button disabled={waiting} on:click={answerPalWorld}>
 			<img
 				draggable="false"
 				class:grey-scale={pokemonHovered}
 				src="/images/background/Backgroundbg-left.webp"
 				alt="Collection of PalWorld on the left of the battleground"
-				class="relative w-full object-cover transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+				class="relative h-full object-cover object-right transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
 				on:mouseenter={() => {
 					palworldHovered = true;
 				}}
@@ -202,7 +205,7 @@
 				class:grey-scale={palworldHovered}
 				src="/images/background/Backgroundbg-right.webp"
 				alt="Collection of Pokémon on the right of the battleground"
-				class="relative w-full object-cover transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+				class="relative h-full object-cover object-left transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
 				on:mouseenter={() => {
 					pokemonHovered = true;
 				}}
@@ -214,7 +217,7 @@
 	</div>
 
 	<div class="z-20 w-full xl:w-fit">
-		<Scoreboard bind:answerList />
+		<Scoreboard />
 
 		{#if streak >= 3}
 			<!-- TODO: Have this hover over image at an angle. Make it work art style -->
@@ -231,8 +234,8 @@
 			{:then}
 				<div bind:this={answerBox}></div>
 				<img
-					alt="Creature to guess from. Starts with {questionList[currentPokemonIndex].name}"
-					src={questionList[currentPokemonIndex].imageLink}
+					alt="Creature to guess from. Starts with {$answerList[currentPokemonIndex].creature.name}"
+					src={$answerList[currentPokemonIndex].creature.imageLink}
 					class="h-full w-fit"
 				/>
 			{:catch error}

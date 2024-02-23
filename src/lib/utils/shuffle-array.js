@@ -13,4 +13,4 @@ function shuffleFn(array) {
 	return array;
 }
 
-export let shuffle = shuffleFn;
+export const shuffle = shuffleFn;
