@@ -8,4 +8,8 @@
 	injectSpeedInsights();
 </script>
 
+<svelet:head>
+	<title>PalsVsPokemon</title>
+</svelet:head>
+
 <slot />
