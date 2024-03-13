@@ -13,16 +13,19 @@ datasource db {
 
 model Creature {
   id         Int      @id @default(autoincrement())
+  creatureId String
   name       String
   originGame String
+  wikiLink   String
   imageLink  String
   types      Type[]
   createdAt  DateTime @default(now())
 }
 
 model Type {
-  id         Int       @id @default(autoincrement())
+  id         Int        @id @default(autoincrement())
   name       String
-  Creature   Creature? @relation(fields: [creatureId], references: [id])
+  Creature   Creature[]
   creatureId Int?
 }
+
