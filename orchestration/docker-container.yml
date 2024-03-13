@@ -1,6 +1,7 @@
 version: '3.9'
 
-service:
+
+services:
   pal-vs-pokemon-app:
     build:
       context: ../
@@ -19,6 +20,3 @@ service:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_DB=postgres
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - db-data:/var/lib/postgresql/data
