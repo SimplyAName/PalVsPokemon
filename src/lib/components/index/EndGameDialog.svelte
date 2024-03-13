@@ -1,32 +1,41 @@
 <script lang="ts">
-	import type { Score } from '$lib/types/ScoreCount';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Card from '$lib/components/ui/card/index.js';
 	import * as Carousel from '$lib/components/ui/carousel/index.js';
 	import * as Table from '$lib/components/ui/table';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import { streak, roundCounter, scoreCounter } from '$lib/stores/store';
 
-	export let scoreCounter: Score[] = [];
+	// export let scoreCounter: Score[] = [];
 	let totalScore: number = 0;
 
-	$: totalScore = scoreCounter.reduce((previous, next) => {
+	$: totalScore = $scoreCounter.reduce((previous, next) => {
 		return (previous += next.score);
 	}, 0);
 
 	export let endGameDialogStatus = false;
 
-	export let restartFunction = () => {
-		endGameDialogStatus = false;
-	};
-
-	export let continueFunction = () => {
-		endGameDialogStatus = false;
-	};
-
 	const endGameDialogClickOnClose = false;
+
 	let endGameDialogChange = (openStatus: boolean) => {
 		endGameDialogStatus = openStatus;
 	};
+
+	let restartFunction = () => {
+		$roundCounter = 1;
+		$streak = 0;
+		$scoreCounter = [];
+
+		resetGame();
+	};
+
+	let continueFunction = () => {
+		resetGame();
+	};
+
+	function resetGame() {
+		endGameDialogStatus = false;
+	}
 </script>
 
 <Dialog.Root
@@ -52,15 +61,15 @@
 				</Table.Row>
 			</Table.Header>
 			<Table.Body>
-				{#each scoreCounter as score}
+				{#each $scoreCounter as score}
 					<Table.Row>
 						<Table.Cell class="border-r font-medium">{score.round}</Table.Cell>
 						<Table.Cell>
 							{#each score.answerList as currAnswer}
 								{#if currAnswer.correct}
-									🟩
+									🟢
 								{:else if currAnswer.correct === false}
-									🟥
+									🔴
 								{:else}
 									⬜
 								{/if}
@@ -81,7 +90,7 @@
 
 		<Carousel.Root opts={{ loop: true }} class="mx-8 max-w-sm">
 			<Carousel.Content>
-				{#each scoreCounter[scoreCounter.length - 1].answerList as question, i (i)}
+				{#each $scoreCounter[$scoreCounter.length - 1].answerList as question, i (i)}
 					<Carousel.Item>
 						<Card.Root>
 							<Card.Header>

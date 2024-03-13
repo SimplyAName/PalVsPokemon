@@ -2,27 +2,30 @@
 	//TODO: Work out if it's best to keep everything here or add more components
 	// import GameWindow from '$lib/components/index/GameWindow.svelte';
 
-	import type { Creature } from '@prisma/client';
-	import type { Answer } from '$lib/types/Answer';
 	import type { Score } from '$lib/types/ScoreCount';
+	import type { Answer } from '$lib/types/Answer';
+	import type { Creature } from '@prisma/client';
 
-	import { answerList, roundCounter } from '$lib/stores/store';
-
-	import { shuffle } from '$lib/utils/shuffle-array';
+	import { answerList, roundCounter, streak, scoreCounter } from '$lib/stores/store';
 
 	import IntroDialog from '../lib/components/index/IntroDialog.svelte';
 	import EndGameDialog from '../lib/components/index/EndGameDialog.svelte';
 	import Scoreboard from '$lib/components/index/Scoreboard.svelte';
-	import { SquareFlipSpinner } from '$lib/components/ui/animations/SquareFlipSpinner';
+	import AnswerButtons from '$lib/components/index/AnswerButtons.svelte';
+	import SquareFlipSpinner from '$lib/components/ui/Spinners/SquareFlipSpinner.svelte';
+
 	import { onMount } from 'svelte';
-	import { fade } from 'svelte/transition';
+	import { fade, fly, scale } from 'svelte/transition';
+
+	import { getRandCreatures } from '$lib/functions/index/GameFunctions';
+	import ResultPopover from './ResultPopover.svelte';
+	import { quintOut } from 'svelte/easing';
+	import { slamDown } from '$lib/components/ui/animations/slam-down';
 
 	//SETUP
 	export let data;
 
 	onMount(() => {
-		console.log(data);
-
 		if (!data.visited) {
 			introDialogStatus = true;
 		}
@@ -30,56 +33,36 @@
 
 	//STATE
 	let roundScore = 0;
-	let scoreCounter: Score[] = [];
-	let streak = 0;
 
 	let questionAmount = 10;
 	let currentPokemonIndex = 0;
 
 	let waiting = false;
-	let palworldHovered = false;
-	let pokemonHovered = false;
 
 	let introDialogStatus = false;
 	let endGameDialogStatus = false;
 
-	let pokeButton: HTMLButtonElement;
-	let answerBox: HTMLDivElement;
+	let refreshQuestionsPromise: Promise<Answer[]> = refreshQuestionList();
 
-	let randCreaturePromise = getRandCreature();
+	let answerBox: HTMLElement;
 
-	async function getRandCreature() {
+	async function refreshQuestionList() {
 		waiting = true;
 
-		const resultList = await fetch(`/api/question/${questionAmount}`, {
-			method: 'GET',
-			headers: {
-				Accept: 'application/json'
-			}
-		});
+		let creatureList = await getRandCreatures(questionAmount);
+
+		$answerList = creatureList.reduce((previousValue: Answer[], currQuestion: Creature) => {
+			let tempAnswer: Answer = {
+				creature: currQuestion,
+				correct: null
+			};
+
+			return (previousValue = [...previousValue, tempAnswer]);
+		}, []);
 
 		waiting = false;
 
-		if (resultList.ok) {
-			let creatureList = await resultList.json();
-
-			creatureList = shuffle(creatureList);
-
-			$answerList = creatureList.reduce((previousValue: Answer[], currQuestion: Creature) => {
-				let tempAnswer: Answer = {
-					creature: currQuestion,
-					correct: null
-				};
-
-				return (previousValue = [...previousValue, tempAnswer]);
-			}, []);
-
-			return creatureList;
-		}
-
-		console.error(resultList);
-
-		throw new Error(`Failed to get questions! Status: ${resultList.status}`);
+		return $answerList;
 	}
 
 	function answerPalWorld() {
@@ -90,27 +73,18 @@
 		_answerQuestion('Pokémon');
 	}
 
-	function showAnswerAnimation(correct: boolean) {
-		if (correct) {
-			//Animate win
-		} else {
-			//Animate loss
-		}
-	}
-
 	function _answerQuestion(submitted: String) {
 		if (submitted === $answerList[currentPokemonIndex]?.creature.originGame) {
 			$answerList[currentPokemonIndex].correct = true;
 
+			showResultPopup(true);
 			roundScore++;
-			streak++;
-
-			showAnswerAnimation(true);
+			$streak++;
 		} else {
-			$answerList[currentPokemonIndex].correct = false;
-			streak = 0;
+			showResultPopup(false);
 
-			showAnswerAnimation(false);
+			$answerList[currentPokemonIndex].correct = false;
+			$streak = 0;
 		}
 
 		//End game
@@ -123,10 +97,12 @@
 		currentPokemonIndex++;
 	}
 
+	function showResultPopup(result: boolean) {
+		// answerBox.innerHTML = ResultPopover;
+	}
+
 	function refreshGameState() {
 		console.log('Refreshing Game State');
-
-		waiting = true;
 
 		let tempScore: Score = {
 			round: $roundCounter,
@@ -134,33 +110,16 @@
 			answerList: $answerList
 		};
 
-		scoreCounter = [...scoreCounter, tempScore];
+		$scoreCounter = [...$scoreCounter, tempScore];
 
+		roundScore = 0;
 		currentPokemonIndex = 0;
 
-		randCreaturePromise = getRandCreature();
+		refreshQuestionsPromise = refreshQuestionList();
 
 		$roundCounter++;
 
 		return true;
-	}
-
-	let restartFunction = () => {
-		$roundCounter = 1;
-		streak = 0;
-		scoreCounter = [];
-
-		resetGame();
-	};
-
-	let continueFunction = () => {
-		resetGame();
-	};
-
-	function resetGame() {
-		roundScore = 0;
-
-		endGameDialogStatus = false;
 	}
 </script>
 
@@ -177,62 +136,52 @@
 			case 'ArrowRight':
 				answerPokemon();
 				break;
+			default:
+				break;
 		}
 	}}
 />
 
 <div class="flex h-screen flex-col items-center">
-	<div class="fixed z-10 flex min-h-full flex-row overflow-hidden">
-		<button disabled={waiting} on:click={answerPalWorld}>
-			<img
-				draggable="false"
-				class:grey-scale={pokemonHovered}
-				src="/images/background/Backgroundbg-left.webp"
-				alt="Collection of PalWorld on the left of the battleground"
-				class="relative h-full object-cover object-right transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
-				on:mouseenter={() => {
-					palworldHovered = true;
-				}}
-				on:mouseleave={() => {
-					palworldHovered = false;
-				}}
-			/>
-		</button>
-
-		<button disabled={waiting} on:click={answerPokemon} bind:this={pokeButton}>
-			<img
-				draggable="false"
-				class:grey-scale={palworldHovered}
-				src="/images/background/Backgroundbg-right.webp"
-				alt="Collection of Pokémon on the right of the battleground"
-				class="relative h-full object-cover object-left transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
-				on:mouseenter={() => {
-					pokemonHovered = true;
-				}}
-				on:mouseleave={() => {
-					pokemonHovered = false;
-				}}
-			/>
-		</button>
+	<div class="fixed z-10 min-h-full overflow-hidden">
+		<AnswerButtons on:leftClick={answerPalWorld} on:rightClick={answerPokemon} disabled={waiting} />
 	</div>
 
-	<div class="z-20 w-full xl:w-fit">
+	<div class="z-20">
 		<Scoreboard />
-
-		{#if streak >= 3}
-			<!-- TODO: Have this hover over image at an angle. Make it work art style -->
-			<p transition:fade class="bonus-streak-alert flex justify-center text-xl text-red-500">
-				<b>{streak} combo!!!</b>
-			</p>
-		{/if}
 	</div>
 
 	<div class="z-20 flex h-full flex-col items-center justify-center">
-		<div class="aspect-square h-[33dvh]">
-			{#await randCreaturePromise}
+		<div class="flex aspect-square h-[33dvh] flex-col items-center justify-center">
+			{#await refreshQuestionsPromise}
 				<SquareFlipSpinner background="linear-gradient(to bottom left, blue, pink)" />
 			{:then}
-				<div bind:this={answerBox}></div>
+				<div
+					class="fade-up-and-out relative top-0 text-red-500 transition-all"
+					transition:fade
+					bind:this={answerBox}
+				></div>
+
+				<div class="z-20 w-full xl:w-fit">
+					{#if $streak >= 3}
+						<!-- TODO: Have this hover over image at an angle. Make it work art style wise -->
+						<p
+							transition:slamDown={{
+								delay: 250,
+								duration: 1200,
+								x: 100,
+								y: -500,
+								easing: quintOut
+							}}
+							class="flex justify-center p-4"
+						>
+							<b class="text-shadow-black font-[PaintedLady] text-4xl text-yellow-300">
+								{$streak} combo!!!
+							</b>
+						</p>
+					{/if}
+				</div>
+
 				<img
 					alt="Creature to guess from. Starts with {$answerList[currentPokemonIndex].creature.name}"
 					src={$answerList[currentPokemonIndex].creature.imageLink}
@@ -248,21 +197,24 @@
 
 	<IntroDialog bind:introDialogStatus />
 
-	<EndGameDialog
-		bind:endGameDialogStatus
-		bind:restartFunction
-		bind:continueFunction
-		bind:scoreCounter
-	/>
+	<EndGameDialog bind:endGameDialogStatus />
 </div>
 
 <style>
-	.grey-scale {
-		filter: grayscale();
-	}
-
 	.bonus-streak-alert {
 		animation: pulse 2s ease-in-out infinite;
+	}
+
+	.fade-up-and-out {
+		animation: trans-up 2s ease-in-out infinite;
+	}
+
+	.text-shadow-black {
+		text-shadow:
+			-1px -1px 0 #000,
+			1px -1px 0 #000,
+			-1px 1px 0 #000,
+			1px 1px 0 #000;
 	}
 
 	@keyframes pulse {
@@ -274,6 +226,15 @@
 		}
 		100% {
 			transform: scale(1);
+		}
+	}
+
+	@keyframes trans-up {
+		0% {
+			transform: translateX(0);
+		}
+		100% {
+			transform: translateX(-1000);
 		}
 	}
 </style>
