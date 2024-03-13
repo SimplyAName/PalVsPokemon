@@ -1,4 +1,5 @@
 {
+	"name": "palvspokemon",
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
 		"allowJs": true,
