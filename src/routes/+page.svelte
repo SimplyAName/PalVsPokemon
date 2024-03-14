@@ -22,6 +22,8 @@
 	import { quintOut } from 'svelte/easing';
 	import { slamDown } from '$lib/components/ui/animations/slam-down';
 
+	import creatureSelectBG from '$lib/assets/images/Pokemon BG.webp';
+
 	//SETUP
 	export let data;
 
@@ -152,7 +154,7 @@
 	</div>
 
 	<div class="z-20 flex h-full flex-col items-center justify-center">
-		<div class="flex aspect-square h-[33dvh] flex-col items-center justify-center">
+		<div class="flex aspect-square h-[80dvh] flex-col items-center justify-center">
 			{#await refreshQuestionsPromise}
 				<SquareFlipSpinner background="linear-gradient(to bottom left, blue, pink)" />
 			{:then}
@@ -162,9 +164,9 @@
 					bind:this={answerBox}
 				></div>
 
-				<div class="z-20 w-full xl:w-fit">
+				<div class="relative">
 					{#if $streak >= 3}
-						<!-- TODO: Have this hover over image at an angle. Make it work art style wise -->
+						<!-- TODO: Make this animate in -->
 						<p
 							transition:slamDown={{
 								delay: 250,
@@ -173,20 +175,22 @@
 								y: -500,
 								easing: quintOut
 							}}
-							class="flex justify-center p-4"
+							class="absolute left-1/2 -translate-x-1/2"
 						>
-							<b class="text-shadow-black font-[PaintedLady] text-4xl text-yellow-300">
+							<b class="text-shadow-black font-[PaintedLady] text-7xl text-orange-400">
 								{$streak} combo!!!
 							</b>
 						</p>
 					{/if}
-				</div>
+					<img src={creatureSelectBG} class=" w-full" alt="Background for creature" />
 
-				<img
-					alt="Creature to guess from. Starts with {$answerList[currentPokemonIndex].creature.name}"
-					src={$answerList[currentPokemonIndex].creature.imageLink}
-					class="h-full w-fit"
-				/>
+					<img
+						alt="Creature to guess from. Starts with {$answerList[currentPokemonIndex].creature
+							.name}"
+						src={$answerList[currentPokemonIndex].creature.imageLink}
+						class="absolute left-1/2 top-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2"
+					/>
+				</div>
 			{:catch error}
 				<p style="color: red">{error.message}</p>
 			{/await}
@@ -211,10 +215,38 @@
 
 	.text-shadow-black {
 		text-shadow:
-			-1px -1px 0 #000,
-			1px -1px 0 #000,
-			-1px 1px 0 #000,
-			1px 1px 0 #000;
+			-2px -2px 0 #000,
+			2px -2px 0 #000,
+			-2px 2px 0 #000,
+			2px 2px 0 #000;
+	}
+
+	.ani-spin {
+		animation-name: custom-spin;
+		animation-duration: 1s;
+		animation-iteration-count: infinite;
+		/* animation-timing-function: cubic-bezier(); */
+	}
+
+	@keyframes custom-spin {
+		0% {
+			transform: rotate(360deg);
+		}
+		20% {
+			transform: scale(1.1) rotate(60deg);
+		}
+		40% {
+			transform: scale(1) rotate(120deg);
+		}
+		60% {
+			transform: scale(1.1) rotate(180deg);
+		}
+		80% {
+			transform: scale(1) rotate(240deg);
+		}
+		100% {
+			transform: scale(1.1) rotate(300deg);
+		}
 	}
 
 	@keyframes pulse {

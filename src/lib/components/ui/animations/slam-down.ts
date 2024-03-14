@@ -4,14 +4,14 @@ import type { TransitionConfig } from 'svelte/transition';
 /**
  * Animates the opacity and scale of an element. `in` transitions animate from an element's current (default) values to the provided values, passed as parameters. `out` transitions animate from the provided values to an element's default values.
  *
- * https://svelte.dev/docs/svelte-transition#scale
+ * https://svelte.dev/docs/svelte-transition
  * @param {HTMLElement} node
  * @param {{}} parameters
  * @returns {TransitionConfig}
  */
 export function slamDown(
 	node: HTMLElement,
-	{ delay = 0, duration = 1200, easing = cubicOut, start = 1.5, x = 100, y = 0, opacity = 0 } = {}
+	{ delay = 0, duration = 1200, easing = cubicOut, start = 1.5, x = 100, y = 0, opacity = 0 }
 ): TransitionConfig {
 	const style = getComputedStyle(node);
 	const target_opacity = +style.opacity;

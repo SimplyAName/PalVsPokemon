@@ -6,7 +6,6 @@
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { streak, roundCounter, scoreCounter } from '$lib/stores/store';
 
-	// export let scoreCounter: Score[] = [];
 	let totalScore: number = 0;
 
 	$: totalScore = $scoreCounter.reduce((previous, next) => {
