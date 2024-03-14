@@ -94,14 +94,16 @@
 					<Carousel.Item>
 						<Card.Root>
 							<Card.Header>
-								<Card.Title>
-									{i + 1} - {question.creature.name}
-									{#if question.correct}
-										<span class="text-transparent" style="text-shadow: 0 0 0 green;"> ✔️ </span>
-									{:else}
-										❌
-									{/if}
-								</Card.Title>
+								<a href={question.creature.wikiLink} target="_blank">
+									<Card.Title>
+										{i + 1} - {question.creature.name}
+										{#if question.correct}
+											<span class="text-transparent" style="text-shadow: 0 0 0 green;"> ✔️ </span>
+										{:else}
+											❌
+										{/if}
+									</Card.Title>
+								</a>
 								<Card.Description>
 									{question.creature.originGame}
 								</Card.Description>

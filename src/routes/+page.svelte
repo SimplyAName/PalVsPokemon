@@ -51,9 +51,9 @@
 
 		let creatureList = await getRandCreatures(questionAmount);
 
-		$answerList = creatureList.reduce((previousValue: Answer[], currQuestion: Creature) => {
+		$answerList = creatureList.reduce((previousValue: Answer[], currCreature: Creature) => {
 			let tempAnswer: Answer = {
-				creature: currQuestion,
+				creature: currCreature,
 				correct: null
 			};
 
