@@ -103,10 +103,11 @@
 											❌
 										{/if}
 									</Card.Title>
+
+									<Card.Description>
+										{question.creature.originGame}
+									</Card.Description>
 								</a>
-								<Card.Description>
-									{question.creature.originGame}
-								</Card.Description>
 							</Card.Header>
 							<Card.Content class="flex flex-col items-center">
 								<img alt={question.creature.name} src={question.creature.imageLink} class="h-48" />
