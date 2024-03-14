@@ -1,5 +1,5 @@
 # This image should build the svelte project and then passed onto another container to run it
-FROM node:20-alpine as build 
+FROM node:20-alpine AS build 
 LABEL author="Michael Loney"
 
 WORKDIR /home/node/build
