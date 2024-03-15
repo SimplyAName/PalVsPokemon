@@ -177,12 +177,12 @@
 							}}
 							class="absolute left-1/2 -translate-x-1/2"
 						>
-							<b class="text-shadow-black font-[PaintedLady] text-7xl text-orange-400">
+							<b class="text-shadow-black font-[PaintedLady] text-6xl text- text-orange-400">
 								{$streak} combo!!!
 							</b>
 						</p>
 					{/if}
-					<img src={creatureSelectBG} class=" w-full" alt="Background for creature" />
+					<img src={creatureSelectBG} class="w-full" alt="Background for creature" />
 
 					<img
 						alt="Creature to guess from. Starts with {$answerList[currentPokemonIndex].creature
