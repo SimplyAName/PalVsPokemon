@@ -7,6 +7,7 @@ WORKDIR /home/node/build
 COPY . .
 
 RUN npm ci
+RUN npx prisma generate
 RUN npm run build
 
 ### ========================================== ###
@@ -22,9 +23,8 @@ COPY --from=build /home/node/build/package-lock.json .
 COPY --from=build /home/node/build/prisma prisma
 COPY --from=build /home/node/build/.env.docker .env
 
-RUN npm ci --only=production --quiet
+COPY ./orchestration/docker-startup.sh ./docker-startup.sh
 
 EXPOSE 3000
-EXPOSE 5432
 
-CMD ["node", "."]
+CMD ["./docker-startup.sh"]
