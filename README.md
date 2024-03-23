@@ -8,7 +8,7 @@ This site was inspired by a video I saw from Disguised Toast where he tested if 
 
 This project has a docker compose file which you can use to launch your own version of the site.
 
-Simply run `docker compose up -d` to launch a database that will then be set up and populated for you (Still work in progress)
+Simple go to orchestration `cd orchestration` and run `docker compose up -d` to launch a database that will then be set up and populated for you (Still work in progress)
 
 ## Developing
 
