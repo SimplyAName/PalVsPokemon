@@ -2,6 +2,8 @@
 FROM node:20-alpine AS build 
 LABEL author="Michael Loney"
 
+ENV NODE_ENV docker
+
 WORKDIR /home/node/build
 
 COPY . .
