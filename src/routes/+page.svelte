@@ -170,48 +170,36 @@
 	}}
 />
 
-<div class="flex max-h-screen flex-col items-center gap-4">
-	<div class="fixed z-10 overflow-hidden">
+<div class="relative h-screen overflow-hidden">
+	<div class="absolute top-[-10] w-full h-full z-0 overflow-hidden">
 		<AnswerButtons on:leftClick={answerPalWorld} on:rightClick={answerPokemon} disabled={waiting} />
 	</div>
 
-	<div class="z-20 w-full sm:w-2/3 xl:w-1/3">
-		<Scoreboard />
-	</div>
-
-	<div class="z-20 flex flex-col items-center justify-center">
-		<!-- Game window -->
-		<div class="flex aspect-square flex-col items-center justify-center">
+	<div class="z-20 relative flex flex-col overflow-hidden h-full pointer-events-none">
+		<div class="z-20 mx-auto w-full sm:w-2/3 xl:w-1/3">
+			<Scoreboard />
+		</div>
+		
+		<div class="w-full h-full flex items-center justify-center">
 			{#await refreshQuestionsPromise}
 				<SquareFlipSpinner background="linear-gradient(to bottom left, blue, pink)" />
 			{:then}
-				<div class="relative">
+				<div class="relative flex items-center justify-center">
 					{#if $streak >= 3}
-						<!-- TODO: Make this animate in -->
-						<p
-							class="text-shadow-black abs-center fade-up-and-out p-4 font-[PaintedLady] text-2xl text-orange-400 md:text-6xl"
-						>
-							<b>
-								{$streak} combo!!!
-							</b>
-						</p>
+						<span class="absolute z-40 whitespace-nowrap -bottom-16 text-shadow-black abs-center fade-up-and-out p-4 font-[PaintedLady] text-2xl text-orange-400 md:text-6xl">
+							{$streak} combo!!!
+						</span>
 					{/if}
 
-					<div
-						class:opacity-0={!showResultAnimation}
-						class="abs-center absolute top-1/4 text-4xl transition-opacity"
-						bind:this={answerBox}
-					>
-						{@html answerInner}
+					<div class="absolute -m-32">
+						<img src={creatureSelectBG} class="w-full h-full object-cover" alt="Background for creature" />
 					</div>
-
-					<img src={creatureSelectBG} class="h-fit object-cover" alt="Background for creature" />
 
 					<img
 						alt="Creature to guess from. Starts with {$answerList[currentPokemonIndex].creature
 							.name}"
 						src={$answerList[currentPokemonIndex].creature.imageLink}
-						class="absolute left-1/2 top-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2"
+						class="pointer-events-auto z-30 -translate-y-8"
 					/>
 				</div>
 			{:catch error}
@@ -219,20 +207,15 @@
 			{/await}
 		</div>
 
-		<!-- Extra answer buttons -->
-		<div class="z-20 flex w-full flex-col justify-evenly gap-4 p-4 md:flex-row">
+		<div class="w-full flex flex-col justify-evenly gap-32 p-4 md:flex-row">
 			<Button class="w-full border border-red-500 p-8" disabled={waiting} on:click={answerPalWorld}>
-				<!-- TODO: Swap this with an image of the palworld icon-->
 				<div class="text-xl">PalWorld</div>
 			</Button>
 			<Button class="w-full border border-blue-500 p-8" disabled={waiting} on:click={answerPokemon}>
-				<!-- TODO: Swap this with an image of the pokemon icon-->
 				<div class="text-xl">Pokémon</div>
 			</Button>
 		</div>
 	</div>
-
-	<!-- Dialogs -->
 
 	<IntroDialog bind:introDialogStatus />
 
