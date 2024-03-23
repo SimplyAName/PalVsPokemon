@@ -16,8 +16,9 @@ RUN npm run build
 FROM node:20-alpine AS production
 LABEL author="Michael Loney"
 
-WORKDIR /home/SvelteKit
 ENV NODE_ENV production
+
+WORKDIR /home/SvelteKit
 
 COPY --from=build /home/node/build/build .
 COPY --from=build /home/node/build/package.json .
