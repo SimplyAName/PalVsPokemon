@@ -8,7 +8,7 @@ This site was inspired by a video I saw from Disguised Toast where he tested if 
 
 This project has a docker compose file which you can use to launch your own version of the site.
 
-Simple go to orchestration `cd orchestration` and run `docker compose up -d` to launch a database that will then be set up and populated for you (Still work in progress)
+When in the root of the project run `cd orchestration` then `docker compose up -d` to launch a database that will then be set up and populated for you (Still work in progress)
 
 ## Developing
 
@@ -16,7 +16,9 @@ This project is built using SvelteKit.
 
 Start with running `npm install` at the root of the project to set up the node dependencies.
 
-Next you can run the site using:
+After setting up your .env file run `npx prisma generate` to set up the database connection with prisma
+
+Now you can run the site using:
 
 ```bash
 npm run dev
@@ -37,6 +39,8 @@ This also go for the database schema set up, if you need to make changes please 
 
 ## Building
 
+> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
 To create a production version of your app:
 
 ```bash
@@ -45,7 +49,7 @@ npm run build
 
 You can preview the production build with `npm run preview`.
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+After setting up your .env file for where you will be deploying to run `npx prisma generate` to set up the database connection with prisma
 
 #### Credits
 
