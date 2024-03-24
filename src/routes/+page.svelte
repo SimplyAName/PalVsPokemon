@@ -194,12 +194,12 @@
 					<div class="absolute -m-32">
 						<img src={creatureSelectBG} class="w-full h-full object-cover" alt="Background for creature" />
 					</div>
-
+					
 					<img
 						alt="Creature to guess from. Starts with {$answerList[currentPokemonIndex].creature
 							.name}"
 						src={$answerList[currentPokemonIndex].creature.imageLink}
-						class="pointer-events-auto z-30 -translate-y-8"
+						class="pointer-events-auto h-full max-h-[50vh] z-30 translate-y-0 md:-translate-y-8"
 					/>
 				</div>
 			{:catch error}
@@ -207,7 +207,7 @@
 			{/await}
 		</div>
 
-		<div class="w-full flex flex-col justify-evenly gap-32 p-4 md:flex-row">
+		<div class="z-20 w-full flex flex-col justify-evenly gap-8 md:gap-32 p-4 md:flex-row">
 			<Button class="w-full border border-red-500 p-8" disabled={waiting} on:click={answerPalWorld}>
 				<div class="text-xl">PalWorld</div>
 			</Button>
