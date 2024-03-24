@@ -184,6 +184,12 @@
 			{#await refreshQuestionsPromise}
 				<SquareFlipSpinner background="linear-gradient(to bottom left, blue, pink)" />
 			{:then}
+				<div
+					class="fade-up-and-out relative top-0 text-red-500 transition-all"
+					transition:fade
+					bind:this={answerBox}
+				></div>
+
 				<div class="relative flex items-center justify-center">
 					{#if $streak >= 3}
 						<span class="absolute z-40 whitespace-nowrap -bottom-16 text-shadow-black abs-center fade-up-and-out p-4 font-[PaintedLady] font-bold text-2xl text-orange-400 md:text-6xl">
