@@ -24,8 +24,6 @@ export function slamDown(
 		duration,
 		easing,
 		css: (t, u) => {
-			console.log(`scale(${sd * u})`);
-
 			return `
 			transform: ${transform} scale(${sd * u}) translate(${(1 - t) * x}px, ${(1 - t) * y}px;
 			opacity: ${target_opacity - od * u}

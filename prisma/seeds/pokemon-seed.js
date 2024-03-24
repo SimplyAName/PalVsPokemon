@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-export default async function pokemonSeed(database: PrismaClient) {
+export default async function pokemonSeed(database) {
 	return await database.creature.createMany({
 		data: [
 			{

@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"prisma": {
-		"seed": "node --loader ts-node/esm .\\prisma\\seeds\\seed.ts "
+		"seed": "node prisma/seeds/seed.js "
 	},
 	"scripts": {
 		"dev": "vite dev",

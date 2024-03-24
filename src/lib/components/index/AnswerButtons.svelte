@@ -17,7 +17,7 @@
 	let rightHovered = false;
 </script>
 
-<div class="flex flex-row">
+<div class="flex min-h-screen flex-row">
 	<button {disabled} on:click={leftOnClick}>
 		<img
 			draggable="false"
@@ -40,7 +40,7 @@
 			class:grey-scale={leftHovered}
 			src="/images/background/Backgroundbg-right.webp"
 			alt="Collection of Pokémon on the right of the battleground"
-			class="relative h-full object-cover object-left transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+			class="relative h-full object-cover object-left filter transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
 			on:mouseenter={() => {
 				rightHovered = true;
 			}}

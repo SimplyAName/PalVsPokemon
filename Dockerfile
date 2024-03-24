@@ -2,19 +2,23 @@
 FROM node:20-alpine AS build 
 LABEL author="Michael Loney"
 
+ENV NODE_ENV docker
+
 WORKDIR /home/node/build
 
 COPY . .
 
 RUN npm ci
+RUN npx prisma generate
 RUN npm run build
 
 ### ========================================== ###
 FROM node:20-alpine AS production
 LABEL author="Michael Loney"
 
-WORKDIR /home/SvelteKit
 ENV NODE_ENV production
+
+WORKDIR /home/SvelteKit
 
 COPY --from=build /home/node/build/build .
 COPY --from=build /home/node/build/package.json .
@@ -22,9 +26,8 @@ COPY --from=build /home/node/build/package-lock.json .
 COPY --from=build /home/node/build/prisma prisma
 COPY --from=build /home/node/build/.env.docker .env
 
-RUN npm ci --only=production --quiet
+COPY ./orchestration/docker-startup.sh ./docker-startup.sh
 
 EXPOSE 3000
-EXPOSE 5432
 
-CMD ["node", "."]
+CMD ["./docker-startup.sh"]

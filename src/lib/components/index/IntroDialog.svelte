@@ -19,13 +19,16 @@
 			/>
 			<div class="white-banner absolute top-1/2 w-full -translate-y-1/2 text-center">
 				<p class="text-xl">Palworld Vs Pokémon</p>
-				Can you tell the pals from pokémon?
 			</div>
 		</div>
-		<div class="text-center">
-			Each round you will have 10 creatures to choose from.
-			<br />
-			See how much of a fan you really are!
+		<div class="text-balance text-center">
+			<p><b>Pal-emon or Pokemon?</b></p>
+
+			<p>Guess from 10 creatures, see how much of a fan you really are!</p>
+
+			<p class="invisible h-0 sm:visible sm:h-auto">
+				Answer by clicking either side of the screen or the buttons at the bottom
+			</p>
 		</div>
 		<Button
 			class="w-full"
