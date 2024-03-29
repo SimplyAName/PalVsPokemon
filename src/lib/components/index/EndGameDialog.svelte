@@ -43,7 +43,7 @@
 	closeOnOutsideClick={endGameDialogClickOnClose}
 	closeOnEscape={endGameDialogClickOnClose}
 >
-	<Dialog.Content class="max-w-fit text-center" closeButton={false}>
+	<Dialog.Content class="text-center" closeButton={false}>
 		<Dialog.Header>
 			<Dialog.Title class="text-center">Palworld Vs Pokémon</Dialog.Title>
 			<Dialog.Description class="text-center">
@@ -63,7 +63,7 @@
 				{#each $scoreCounter as score}
 					<Table.Row>
 						<Table.Cell class="border-r font-medium">{score.round}</Table.Cell>
-						<Table.Cell>
+						<Table.Cell class="text-balance">
 							{#each score.answerList as currAnswer}
 								{#if currAnswer.correct}
 									🟢
@@ -87,37 +87,43 @@
 			</Table.Body>
 		</Table.Root>
 
-		<Carousel.Root opts={{ loop: true }} class="mx-8 max-w-sm">
-			<Carousel.Content>
-				{#each $scoreCounter[$scoreCounter.length - 1].answerList as question, i (i)}
-					<Carousel.Item>
-						<Card.Root>
-							<Card.Header>
-								<a href={question.creature.wikiLink} target="_blank">
-									<Card.Title>
-										{i + 1} - {question.creature.name}
-										{#if question.correct}
-											<span class="text-transparent" style="text-shadow: 0 0 0 green;"> ✔️ </span>
-										{:else}
-											❌
-										{/if}
-									</Card.Title>
+		<div class="flex flex-row justify-center px-8">
+			<Carousel.Root opts={{ loop: true }} class="max-w-xs md:max-w-sm">
+				<Carousel.Content>
+					{#each $scoreCounter[$scoreCounter.length - 1].answerList as question, i (i)}
+						<Carousel.Item>
+							<Card.Root>
+								<Card.Header>
+									<a href={question.creature.wikiLink} target="_blank">
+										<Card.Title>
+											{i + 1} - {question.creature.name}
+											{#if question.correct}
+												<span class="text-transparent" style="text-shadow: 0 0 0 green;"> ✔️ </span>
+											{:else}
+												❌
+											{/if}
+										</Card.Title>
 
-									<Card.Description>
-										{question.creature.originGame}
-									</Card.Description>
-								</a>
-							</Card.Header>
-							<Card.Content class="flex flex-col items-center">
-								<img alt={question.creature.name} src={question.creature.imageLink} class="h-48" />
-							</Card.Content>
-						</Card.Root>
-					</Carousel.Item>
-				{/each}
-			</Carousel.Content>
-			<Carousel.Previous />
-			<Carousel.Next />
-		</Carousel.Root>
+										<Card.Description>
+											{question.creature.originGame}
+										</Card.Description>
+									</a>
+								</Card.Header>
+								<Card.Content class="flex flex-col items-center">
+									<img
+										alt={question.creature.name}
+										src={question.creature.imageLink}
+										class="h-48"
+									/>
+								</Card.Content>
+							</Card.Root>
+						</Carousel.Item>
+					{/each}
+				</Carousel.Content>
+				<Carousel.Previous />
+				<Carousel.Next />
+			</Carousel.Root>
+		</div>
 
 		<div class="flex flex-row gap-4">
 			<Button class="w-full" on:click={restartFunction}>Restart</Button>

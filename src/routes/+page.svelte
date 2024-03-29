@@ -17,12 +17,15 @@
 	import { onMount } from 'svelte';
 	import { fade, fly, scale } from 'svelte/transition';
 
+	import { flip } from 'svelte/animate';
+
 	import { getRandCreatures } from '$lib/functions/index/GameFunctions';
 	import ResultPopover from './ResultPopover.svelte';
 	import { quintOut } from 'svelte/easing';
 	import { slamDown } from '$lib/components/ui/animations/slam-down';
 
 	import creatureSelectBG from '$lib/assets/images/Pokemon BG.webp';
+	import Button from '$lib/components/ui/button/button.svelte';
 
 	//SETUP
 	export let data;
@@ -47,6 +50,8 @@
 	let refreshQuestionsPromise: Promise<Answer[]> = refreshQuestionList();
 
 	let answerBox: HTMLElement;
+	let answerInner = '';
+	let showResultAnimation = false;
 
 	async function refreshQuestionList() {
 		waiting = true;
@@ -99,8 +104,29 @@
 		currentPokemonIndex++;
 	}
 
+	let currTimeout: NodeJS.Timeout;
 	function showResultPopup(result: boolean) {
 		// answerBox.innerHTML = ResultPopover;
+
+		const SHOW_TIME = 1500;
+
+		if (result) {
+			answerInner = '🎉 🎉 🎉';
+		} else {
+			answerInner = '❌ 👎 ❌';
+		}
+
+		showResultAnimation = true;
+
+		console.log(currTimeout);
+
+		if (currTimeout != null && currTimeout != undefined) {
+			clearTimeout(currTimeout);
+		}
+
+		currTimeout = setTimeout(() => {
+			showResultAnimation = false;
+		}, SHOW_TIME);
 	}
 
 	function refreshGameState() {
@@ -144,60 +170,66 @@
 	}}
 />
 
-<div class="flex h-screen flex-col items-center">
-	<div class="fixed z-10 min-h-full overflow-hidden">
+<div class="relative h-screen overflow-hidden">
+	<div class="absolute top-[-10] z-0 h-full w-full overflow-hidden">
 		<AnswerButtons on:leftClick={answerPalWorld} on:rightClick={answerPokemon} disabled={waiting} />
 	</div>
 
-	<div class="z-20">
-		<Scoreboard />
-	</div>
+	<div class="pointer-events-none relative z-20 flex h-full flex-col overflow-hidden">
+		<div class="z-20 mx-auto w-full sm:w-2/3 xl:w-1/3">
+			<Scoreboard />
+		</div>
 
-	<div class="z-20 flex h-full flex-col items-center justify-center">
-		<div class="flex aspect-square h-[80dvh] flex-col items-center justify-center">
+		<div class="flex h-full w-full items-center justify-center">
 			{#await refreshQuestionsPromise}
 				<SquareFlipSpinner background="linear-gradient(to bottom left, blue, pink)" />
 			{:then}
 				<div
-					class="fade-up-and-out relative top-0 text-red-500 transition-all"
-					transition:fade
+					class:opacity-0={!showResultAnimation}
+					class="abs-center absolute top-1/4 z-30 text-4xl transition-opacity"
 					bind:this={answerBox}
-				></div>
+				>
+					{@html answerInner}
+				</div>
 
-				<div class="relative">
+				<div class="relative flex items-center justify-center">
 					{#if $streak >= 3}
-						<!-- TODO: Make this animate in -->
-						<p
-							transition:slamDown={{
-								delay: 250,
-								duration: 1200,
-								x: 100,
-								y: -500,
-								easing: quintOut
-							}}
-							class="absolute left-1/2 -translate-x-1/2"
+						<span
+							class="text-shadow-black abs-center fade-up-and-out absolute -bottom-16 z-40 whitespace-nowrap p-4 font-[PaintedLady] text-2xl font-bold text-orange-400 md:text-6xl"
 						>
-							<b class="text-shadow-black font-[PaintedLady] text-6xl text- text-orange-400">
-								{$streak} combo!!!
-							</b>
-						</p>
+							{$streak} combo!!!
+						</span>
 					{/if}
-					<img src={creatureSelectBG} class="w-full" alt="Background for creature" />
+
+					<div class="absolute -m-32">
+						<img
+							src={creatureSelectBG}
+							class="h-full w-full object-cover"
+							alt="Background for creature"
+						/>
+					</div>
 
 					<img
 						alt="Creature to guess from. Starts with {$answerList[currentPokemonIndex].creature
 							.name}"
 						src={$answerList[currentPokemonIndex].creature.imageLink}
-						class="absolute left-1/2 top-1/2 w-1/2 -translate-x-1/2 -translate-y-1/2"
+						class="pointer-events-auto z-20 h-full max-h-[50vh] translate-y-0 md:-translate-y-8"
 					/>
 				</div>
 			{:catch error}
 				<p style="color: red">{error.message}</p>
 			{/await}
 		</div>
-	</div>
 
-	<!-- Dialogs -->
+		<div class="z-20 flex w-full flex-col justify-evenly gap-8 p-4 md:flex-row md:gap-32">
+			<Button class="w-full border border-red-500 p-8" disabled={waiting} on:click={answerPalWorld}>
+				<div class="text-xl">PalWorld</div>
+			</Button>
+			<Button class="w-full border border-blue-500 p-8" disabled={waiting} on:click={answerPokemon}>
+				<div class="text-xl">Pokémon</div>
+			</Button>
+		</div>
+	</div>
 
 	<IntroDialog bind:introDialogStatus />
 
@@ -205,12 +237,13 @@
 </div>
 
 <style>
-	.bonus-streak-alert {
-		animation: pulse 2s ease-in-out infinite;
+	.abs-center {
+		left: 50%;
+		transform: translateX(-50%);
 	}
-
 	.fade-up-and-out {
-		animation: trans-up 2s ease-in-out infinite;
+		animation: slam-down 0.3s linear;
+		position: absolute;
 	}
 
 	.text-shadow-black {
@@ -221,52 +254,27 @@
 			2px 2px 0 #000;
 	}
 
-	.ani-spin {
-		animation-name: custom-spin;
-		animation-duration: 1s;
-		animation-iteration-count: infinite;
-		/* animation-timing-function: cubic-bezier(); */
-	}
-
-	@keyframes custom-spin {
+	@keyframes slam-down {
 		0% {
-			transform: rotate(360deg);
+			transform: translateX(-50%) translateY(-100px) scale(1.2);
 		}
-		20% {
-			transform: scale(1.1) rotate(60deg);
+		30% {
+			transform: translateY(0) translateX(calc(-50% + 20px)) scale(1);
 		}
 		40% {
-			transform: scale(1) rotate(120deg);
+			transform: translateX(calc(-50% + 20px));
 		}
 		60% {
-			transform: scale(1.1) rotate(180deg);
+			transform: translateX(calc(-50% + -10px));
+		}
+		70% {
+			transform: translateX(calc(-50% + 5px));
 		}
 		80% {
-			transform: scale(1) rotate(240deg);
+			transform: translateX(calc(-50% + -5px));
 		}
 		100% {
-			transform: scale(1.1) rotate(300deg);
-		}
-	}
-
-	@keyframes pulse {
-		0% {
-			transform: scale(1);
-		}
-		50% {
-			transform: scale(1.5);
-		}
-		100% {
-			transform: scale(1);
-		}
-	}
-
-	@keyframes trans-up {
-		0% {
-			transform: translateX(0);
-		}
-		100% {
-			transform: translateX(-1000);
+			transform: translateX(calc(-50% + 0px));
 		}
 	}
 </style>

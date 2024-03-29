@@ -13,7 +13,7 @@ function main() {
 
 			throw err;
 		} else {
-			files.splice(files.indexOf('seed.ts'), 1);
+			files.splice(files.indexOf('seed.js'), 1);
 
 			for (const file of files) {
 				let importPath = `./${file}`;
