@@ -111,9 +111,9 @@
 		const SHOW_TIME = 1500;
 
 		if (result) {
-			answerInner = '<span style="color: transparent; text-shadow: 0 0 0 green;">✔️</span>';
+			answerInner = '🎉 🎉 🎉';
 		} else {
-			answerInner = '❌';
+			answerInner = '❌ 👎 ❌';
 		}
 
 		showResultAnimation = true;
@@ -171,41 +171,49 @@
 />
 
 <div class="relative h-screen overflow-hidden">
-	<div class="absolute top-[-10] w-full h-full z-0 overflow-hidden">
+	<div class="absolute top-[-10] z-0 h-full w-full overflow-hidden">
 		<AnswerButtons on:leftClick={answerPalWorld} on:rightClick={answerPokemon} disabled={waiting} />
 	</div>
 
-	<div class="z-20 relative flex flex-col overflow-hidden h-full pointer-events-none">
+	<div class="pointer-events-none relative z-20 flex h-full flex-col overflow-hidden">
 		<div class="z-20 mx-auto w-full sm:w-2/3 xl:w-1/3">
 			<Scoreboard />
 		</div>
-		
-		<div class="w-full h-full flex items-center justify-center">
+
+		<div class="flex h-full w-full items-center justify-center">
 			{#await refreshQuestionsPromise}
 				<SquareFlipSpinner background="linear-gradient(to bottom left, blue, pink)" />
 			{:then}
 				<div
-					class="fade-up-and-out relative top-0 text-red-500 transition-all"
-					transition:fade
+					class:opacity-0={!showResultAnimation}
+					class="abs-center absolute top-1/4 z-30 text-4xl transition-opacity"
 					bind:this={answerBox}
-				></div>
+				>
+					{@html answerInner}
+				</div>
 
 				<div class="relative flex items-center justify-center">
 					{#if $streak >= 3}
-						<span class="absolute z-40 whitespace-nowrap -bottom-16 text-shadow-black abs-center fade-up-and-out p-4 font-[PaintedLady] font-bold text-2xl text-orange-400 md:text-6xl">
+						<span
+							class="text-shadow-black abs-center fade-up-and-out absolute -bottom-16 z-40 whitespace-nowrap p-4 font-[PaintedLady] text-2xl font-bold text-orange-400 md:text-6xl"
+						>
 							{$streak} combo!!!
 						</span>
 					{/if}
 
 					<div class="absolute -m-32">
-						<img src={creatureSelectBG} class="w-full h-full object-cover" alt="Background for creature" />
+						<img
+							src={creatureSelectBG}
+							class="h-full w-full object-cover"
+							alt="Background for creature"
+						/>
 					</div>
-					
+
 					<img
 						alt="Creature to guess from. Starts with {$answerList[currentPokemonIndex].creature
 							.name}"
 						src={$answerList[currentPokemonIndex].creature.imageLink}
-						class="pointer-events-auto h-full max-h-[50vh] z-30 translate-y-0 md:-translate-y-8"
+						class="pointer-events-auto z-20 h-full max-h-[50vh] translate-y-0 md:-translate-y-8"
 					/>
 				</div>
 			{:catch error}
@@ -213,7 +221,7 @@
 			{/await}
 		</div>
 
-		<div class="z-20 w-full flex flex-col justify-evenly gap-8 md:gap-32 p-4 md:flex-row">
+		<div class="z-20 flex w-full flex-col justify-evenly gap-8 p-4 md:flex-row md:gap-32">
 			<Button class="w-full border border-red-500 p-8" disabled={waiting} on:click={answerPalWorld}>
 				<div class="text-xl">PalWorld</div>
 			</Button>
