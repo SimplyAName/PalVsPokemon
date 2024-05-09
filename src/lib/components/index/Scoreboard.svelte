@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Circle } from 'lucide-svelte';
 	import { answerList, roundCounter } from '$lib/stores/store';
 
 	let tempAnswerList = [];
@@ -8,34 +9,50 @@
 	});
 </script>
 
-<div
-	class="flex flex-col items-center justify-center rounded-b-lg border-x border-b border-blue-600 bg-gradient-to-r from-purple-500 to-blue-600 text-center align-middle"
->
-	<div class="white-banner my-1 w-2/3 p-1 text-2xl text-yellow-500">
-		<b>Round {$roundCounter}</b>
+<!-- Pal and Pokemon balls as answer icons?-->
+
+<div class="relative">
+	<img src="/images/new-scoreboard.svg" alt="Scoreboard background" />
+	<div
+		class="absolute top-1/2 flex w-full -translate-y-1/2 flex-col items-center font-[MusicStudio]"
+	>
+		<div class="md:text-2xl">Round</div>
+		<b class="md: -m-1 md:text-3xl">{$roundCounter}</b>
 	</div>
-	<div class="text-xl md:px-4 md:pb-4 md:text-4xl">
+	<div class="right-side absolute flex flex-row-reverse">
 		{#each $answerList as currAnswer}
-			{#if currAnswer.correct}
-				🟢
-			{:else if currAnswer.correct === false}
-				🔴
-			{:else}
-				⚪
+			{#if currAnswer.creature.originGame === 'PalWorld'}
+				{#if currAnswer.correct}
+					<Circle fill="green" size={'2.5rem'} strokeWidth={1.25} />
+				{:else if currAnswer.correct === false}
+					<Circle fill="red" size={'2.5rem'} strokeWidth={1.25} />
+				{/if}
+			{/if}
+		{/each}
+	</div>
+	<div class="left-side absolute flex flex-row">
+		{#each $answerList as currAnswer}
+			{#if currAnswer.creature.originGame === 'Pokémon'}
+				{#if currAnswer.correct}
+					<Circle fill="green" size={'2.5rem'} strokeWidth={1.25} />
+				{:else if currAnswer.correct === false}
+					<Circle fill="red" size={'2.5rem'} strokeWidth={1.25} />
+				{/if}
 			{/if}
 		{/each}
 	</div>
 </div>
 
 <style>
-	.white-banner {
-		background: blue;
-		background: linear-gradient(
-			90deg,
-			rgba(0, 0, 0, 0) 0%,
-			blueviolet 33%,
-			rgb(45, 45, 221) 66%,
-			rgba(0, 0, 0, 0) 100%
-		);
+	.right-side {
+		top: 45%;
+		right: 57%;
+		translate: 0 -55%;
+	}
+
+	.left-side {
+		top: 45%;
+		left: 57%;
+		translate: 0 -55%;
 	}
 </style>
