@@ -20,7 +20,7 @@
 
 	import creatureSelectBG from '$lib/assets/images/Pokemon BG.webp';
 	import pokemonLogo from '$lib/assets/images/Pokemon/pokemon-logo.png';
-	import palworldLogo from '$lib/assets/images/Palworld/palworld-logo.png';
+	import palworldLogo from '$lib/assets/images/PalWorld/palworld-logo.png';
 	import Button from '$lib/components/ui/button/button.svelte';
 
 	//SETUP
