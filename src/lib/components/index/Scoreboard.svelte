@@ -12,14 +12,22 @@
 <!-- Pal and Pokemon balls as answer icons?-->
 
 <div class="relative">
-	<img src="/images/new-scoreboard.svg" alt="Scoreboard background" />
+	<img
+		src="/images/new-scoreboard.svg"
+		alt="Scoreboard background"
+		class="scale-[2] scale-y-[2.5] md:scale-[2] lg:scale-100"
+	/>
 	<div
-		class="absolute top-1/2 flex w-full -translate-y-1/2 flex-col items-center font-[MusicStudio]"
+		class="absolute top-0 flex w-full flex-col items-center font-[MusicStudio] lg:top-1/2 lg:-translate-y-1/2"
 	>
 		<div class="md:text-2xl">Round</div>
-		<b class="md: -m-1 md:text-3xl">{$roundCounter}</b>
+		<b class="md:-m-1 md:text-3xl">{$roundCounter}</b>
 	</div>
-	<div class="right-side absolute flex flex-row-reverse">
+
+	<!-- Left (PalWorld) side -->
+	<div
+		class="absolute right-[62%] top-0 flex flex-row-reverse flex-wrap md:top-2 lg:right-[57%] lg:top-[45%] lg:-translate-y-[55%]"
+	>
 		{#each $answerList as currAnswer}
 			{#if currAnswer.creature.originGame === 'PalWorld'}
 				{#if currAnswer.correct}
@@ -30,7 +38,11 @@
 			{/if}
 		{/each}
 	</div>
-	<div class="left-side absolute flex flex-row">
+
+	<!-- Right (Pokémon) side -->
+	<div
+		class="absolute left-[62%] top-0 flex flex-row-reverse flex-wrap md:top-2 lg:left-[57%] lg:top-[45%] lg:-translate-y-[55%]"
+	>
 		{#each $answerList as currAnswer}
 			{#if currAnswer.creature.originGame === 'Pokémon'}
 				{#if currAnswer.correct}
