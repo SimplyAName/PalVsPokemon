@@ -24,7 +24,7 @@
 			class:grey-scale={rightHovered}
 			src="/images/background/Backgroundbg-left.webp"
 			alt="Collection of PalWorld on the left of the battleground"
-			class="relative h-full object-cover object-right transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+			class="relative h-full object-cover object-right transition-all duration-300 ease-in-out hover:z-10 hover:scale-110"
 			on:mouseenter={() => {
 				leftHovered = true;
 			}}
@@ -40,7 +40,7 @@
 			class:grey-scale={leftHovered}
 			src="/images/background/Backgroundbg-right.webp"
 			alt="Collection of Pokémon on the right of the battleground"
-			class="relative h-full object-cover object-left filter transition-all duration-300 ease-in-out hover:z-20 hover:scale-110"
+			class="relative h-full object-cover object-left filter transition-all duration-300 ease-in-out hover:z-10 hover:scale-110"
 			on:mouseenter={() => {
 				rightHovered = true;
 			}}

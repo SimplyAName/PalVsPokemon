@@ -19,6 +19,8 @@
 	import { getRandCreatures } from '$lib/functions/index/GameFunctions';
 
 	import creatureSelectBG from '$lib/assets/images/Pokemon BG.webp';
+	import pokemonLogo from '$lib/assets/images/Pokemon/pokemon-logo.png';
+	import palworldLogo from '$lib/assets/images/Palworld/palworld-logo.png';
 	import Button from '$lib/components/ui/button/button.svelte';
 
 	//SETUP
@@ -215,15 +217,22 @@
 			{/await}
 		</div>
 
-		<div
-			class="z-20 flex w-full flex-col justify-evenly gap-8 p-4 md:invisible md:flex-row md:gap-32"
-		>
-			<Button class="w-full border border-red-500 p-8" disabled={waiting} on:click={answerPalWorld}>
+		<!-- Mobile answer prompts -->
+		<div class="z-20 flex w-screen flex-row justify-evenly gap-8 p-4 md:invisible">
+			<!-- <Button class="w-full border border-red-500 p-8" disabled={waiting} on:click={answerPalWorld}>
 				<div class="text-xl">PalWorld</div>
-			</Button>
-			<Button class="w-full border border-blue-500 p-8" disabled={waiting} on:click={answerPokemon}>
+			</Button> -->
+			<!-- <Button class="w-full border border-blue-500 p-8" disabled={waiting} on:click={answerPokemon}>
 				<div class="text-xl">Pokémon</div>
-			</Button>
+			</Button> -->
+			<!-- <div class="text-2xl text-white">PalWorld</div> -->
+			<!-- <div class="font-[PokeFontSolid] text-3xl text-white">Pokémon</div> -->
+			<div class="w-1/2">
+				<img src={palworldLogo} alt="PalWorld logo" class="h-full w-full object-scale-down" />
+			</div>
+			<div class="w-1/2">
+				<img src={pokemonLogo} alt="Pokémon logo" class="h-full w-full object-scale-down" />
+			</div>
 		</div>
 	</div>
 
