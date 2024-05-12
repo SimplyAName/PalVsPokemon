@@ -219,14 +219,6 @@
 
 		<!-- Mobile answer prompts -->
 		<div class="z-20 flex w-screen flex-row justify-evenly gap-8 p-4 md:invisible">
-			<!-- <Button class="w-full border border-red-500 p-8" disabled={waiting} on:click={answerPalWorld}>
-				<div class="text-xl">PalWorld</div>
-			</Button> -->
-			<!-- <Button class="w-full border border-blue-500 p-8" disabled={waiting} on:click={answerPokemon}>
-				<div class="text-xl">Pokémon</div>
-			</Button> -->
-			<!-- <div class="text-2xl text-white">PalWorld</div> -->
-			<!-- <div class="font-[PokeFontSolid] text-3xl text-white">Pokémon</div> -->
 			<div class="w-1/2">
 				<img src={palworldLogo} alt="PalWorld logo" class="h-full w-full object-scale-down" />
 			</div>
@@ -246,6 +238,7 @@
 		left: 50%;
 		transform: translateX(-50%);
 	}
+
 	.fade-up-and-out {
 		animation: slam-down 0.3s linear;
 		position: absolute;

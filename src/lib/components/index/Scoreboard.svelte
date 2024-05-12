@@ -9,7 +9,7 @@
 	});
 </script>
 
-<!-- Pal and Pokemon balls as answer icons?-->
+<!-- TODO: Pal and Pokemon balls as answer icons? -->
 
 <div class="relative">
 	<img
@@ -54,17 +54,3 @@
 		{/each}
 	</div>
 </div>
-
-<style>
-	.right-side {
-		top: 45%;
-		right: 57%;
-		translate: 0 -55%;
-	}
-
-	.left-side {
-		top: 45%;
-		left: 57%;
-		translate: 0 -55%;
-	}
-</style>
