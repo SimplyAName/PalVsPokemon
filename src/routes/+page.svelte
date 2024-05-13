@@ -218,7 +218,7 @@
 		</div>
 
 		<!-- Mobile answer prompts -->
-		<div class="z-20 flex w-screen flex-row justify-evenly gap-8 p-4 md:invisible">
+		<div class="z-20 flex w-screen flex-row justify-evenly gap-8 p-4 md:invisible md:h-0">
 			<div class="w-1/2">
 				<img src={palworldLogo} alt="PalWorld logo" class="h-full w-full object-scale-down" />
 			</div>
