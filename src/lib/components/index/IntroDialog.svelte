@@ -22,11 +22,10 @@
 			</div>
 		</div>
 		<div class="text-balance text-center">
-			<p><b>Pal-emon or Pokemon?</b></p>
+			<p><b>Pokemon or Pal-emon?</b></p>
 
-			<p>Guess from 10 creatures, see how much of a fan you really are!</p>
-
-			<p class="invisible h-0 sm:visible sm:h-auto">
+			<p class="p-1">
+				Guess from 10 creatures, see how much of a fan you really are! <br />
 				Answer by clicking either side of the screen or the buttons at the bottom
 			</p>
 		</div>

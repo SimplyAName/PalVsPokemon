@@ -43,7 +43,10 @@
 	closeOnOutsideClick={endGameDialogClickOnClose}
 	closeOnEscape={endGameDialogClickOnClose}
 >
-	<Dialog.Content class="text-center" closeButton={false}>
+	<Dialog.Content
+		class="max-h-screen max-w-min overflow-x-auto overflow-y-auto text-center"
+		closeButton={false}
+	>
 		<Dialog.Header>
 			<Dialog.Title class="text-center">Palworld Vs Pokémon</Dialog.Title>
 			<Dialog.Description class="text-center">
